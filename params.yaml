@@ -1,0 +1,5 @@
+download:
+  kaggle_dataset: manidevesh/hr-dataset-analysis
+  kaggle_file: "HR_DataSet.csv"
+  download_folder: data
+  download_file: 'raw_data.csv'
