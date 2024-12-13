@@ -3,13 +3,14 @@ download_script_file: src/download.py
 download:
   kaggle_dataset: manidevesh/hr-dataset-analysis  # The Kaggle file URL
   kaggle_file: "HR_DataSet.csv"                   # The file name 
-  download_folder: data                           # The folder to download the file to
-  download_file: "raw_data.csv"                   # The new name
+  download_folder: &input_folder data                           # The folder to download the file to
+  download_file: &input_file "raw_data.csv"                   # The new name
 
 preprocess_script_file: src/preprocess.py
 
 preprocess:
-  input_file_path: "data/raw_data.csv"                     # The raw file path
+  input_folder: *input_folder #"data/raw_data.csv"                     # The raw file path
+  input_file: *input_file
   output_file_path: "data/preprocessed_data.csv"           # The preprocessed file path
   rename_map:                                              # New names for the columns
     time_spend_company: time_spend_in_company
@@ -19,4 +20,6 @@ preprocess:
     Department: department
   keep_duplicates: True                                     # Should one keep the duplicate rows
 
-#train_script_file: src/train.py
+train_script_file: src/train.py
+
+#train:

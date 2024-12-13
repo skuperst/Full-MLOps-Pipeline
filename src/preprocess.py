@@ -12,10 +12,10 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 # The preprocess.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, '..', "params.yaml")))['preprocess']
 
-def preprocess(input_file_path, output_file_path, rename_map, keep_duplicates):
+def preprocess(input_folder, input_file, output_file_path, rename_map, keep_duplicates):
     
     # Download the input file into a dataframe
-    Data = pd.read_csv(os.path.join(curr_dir, '..', input_file_path))
+    Data = pd.read_csv(os.path.join(curr_dir, '..', input_folder, input_file))
     logging.info("The data has {} rows and {} columns".format(*Data.shape))
 
     # Rename the columns
@@ -49,5 +49,5 @@ def preprocess(input_file_path, output_file_path, rename_map, keep_duplicates):
         sys.exit(1)        
 
 if __name__ == "__main__":
-    preprocess(input_file_path = params["input_file_path"], output_file_path = params["output_file_path"],
+    preprocess(input_folder = params["input_folder"], input_file = params["input_file"], output_file_path = params["output_file_path"],
                rename_map = params['rename_map'], keep_duplicates = params['keep_duplicates'])

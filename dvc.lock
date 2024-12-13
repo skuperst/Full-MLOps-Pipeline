@@ -30,12 +30,13 @@ stages:
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 9f19b939b4bb7bf22f54a2a83737b812
-      size: 1881
+      md5: f043577804ee9861d570e704cd5e2f02
+      size: 1928
       isexec: true
     params:
       params.yaml:
-        preprocess.input_file_path: data/raw_data.csv
+        preprocess.input_file: raw_data.csv
+        preprocess.input_folder: data
         preprocess.keep_duplicates: true
         preprocess.output_file_path: data/preprocessed_data.csv
         preprocess.rename_map:
