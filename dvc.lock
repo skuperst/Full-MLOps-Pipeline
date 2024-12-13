@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  download:
+    cmd: python src/download.py
+    deps:
+    - path: src/download.py
+      hash: md5
+      md5: 044a415d1419f903413c6c32c969c2cc
+      size: 2009
+      isexec: true
+    params:
+      params.yaml:
+        download.download_file: raw_data.csv
+        download.download_folder: data
+        download.kaggle_dataset: manidevesh/hr-dataset-analysis
+        download.kaggle_file: HR_DataSet.csv
+    outs:
+    - path: data/raw_data.csv
+      hash: md5
+      md5: 59d378061790edde7de565c9d02dffc7
+      size: 566785
+      isexec: true

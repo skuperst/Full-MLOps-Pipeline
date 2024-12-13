@@ -1,0 +1,12 @@
+stages:
+  download:
+    cmd: python src/download.py
+    deps:
+    - src/download.py
+    params:
+    - download.kaggle_dataset
+    - download.kaggle_file
+    - download.download_folder
+    - download.download_file
+    outs:
+    - data/raw_data.csv
