@@ -1,12 +1,23 @@
 stages:
   download:
-    cmd: python src/download.py
+    cmd: python ${download_script_file}
     deps:
-    - src/download.py
+    - ${download_script_file}
     params:
     - download.kaggle_dataset
     - download.kaggle_file
     - download.download_folder
     - download.download_file
     outs:
-    - data/raw_data.csv
+    -  ${download.download_folder}/${download.download_file}
+  preprocess:
+    cmd: python ${preprocess_script_file}
+    deps:
+    - ${preprocess_script_file}
+    params:
+    - preprocess.input_file_path
+    - preprocess.output_file_path
+    - preprocess.rename_map
+    - preprocess.keep_duplicates  
+    outs:
+    - ${preprocess.output_file_path}

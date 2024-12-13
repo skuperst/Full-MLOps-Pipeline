@@ -20,3 +20,28 @@ stages:
       md5: 59d378061790edde7de565c9d02dffc7
       size: 566785
       isexec: true
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - path: src/preprocess.py
+      hash: md5
+      md5: 9f19b939b4bb7bf22f54a2a83737b812
+      size: 1881
+      isexec: true
+    params:
+      params.yaml:
+        preprocess.input_file_path: data/raw_data.csv
+        preprocess.keep_duplicates: true
+        preprocess.output_file_path: data/preprocessed_data.csv
+        preprocess.rename_map:
+          time_spend_company: time_spend_in_company
+          Work_accident: had_work_accidents
+          left: left_or_not
+          promotion_last_5years: promoted_last_5_years
+          Department: department
+    outs:
+    - path: data/preprocessed_data.csv
+      hash: md5
+      md5: 3f8433dba8501c9782ccc9ad4dac9aa8
+      size: 631473
+      isexec: true
