@@ -9,11 +9,12 @@ stages:
     - download.download_folder
     - download.download_file
     outs:
-    -  ${download.download_folder}/${download.download_file}
+    - data/raw_data.csv #${download.download_folder}/${download.download_file}
   preprocess:
     cmd: python ${preprocess_script_file}
     deps:
     - ${preprocess_script_file}
+    - data/raw_data.csv #${download.download_folder}/${download.download_file} #${preprocess.input_file_path}
     params:
     - preprocess.input_file_path
     - preprocess.output_file_path

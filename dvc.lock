@@ -23,6 +23,11 @@ stages:
   preprocess:
     cmd: python src/preprocess.py
     deps:
+    - path: data/raw_data.csv
+      hash: md5
+      md5: 59d378061790edde7de565c9d02dffc7
+      size: 566785
+      isexec: true
     - path: src/preprocess.py
       hash: md5
       md5: 9f19b939b4bb7bf22f54a2a83737b812
