@@ -92,8 +92,18 @@ stages:
           - 0.2
           model_file_path: models/model.pkl
     outs:
+    - path: data/test_X.csv
+      hash: md5
+      md5: 824a865194d0c8d253ce0a16c0868ea4
+      size: 325220
+      isexec: true
+    - path: data/test_y.csv
+      hash: md5
+      md5: cfd7b5362674b76508f9ea55a45a04c3
+      size: 21766
+      isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 3534c3c3a14cdcd6e2eb056a24da3fc9
+      md5: 762ae00470cbf6f645e2c05242f1bab3
       size: 26464
       isexec: true

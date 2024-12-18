@@ -27,4 +27,6 @@ stages:
     params:
     - train 
     outs:
+    - ${train.test_X_file_path}
+    - ${train.test_y_file_path}    
     - ${train.model_file_path}
