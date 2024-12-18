@@ -1,7 +1,7 @@
+import logging
+import yaml
 import os
 import sys
-import yaml
-import logging
 import contextlib
 import io
 
@@ -9,8 +9,6 @@ logging.basicConfig(level=logging.INFO)
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
-# The download.py parameters from the params.yaml file
-params = yaml.safe_load(open(os.path.join(curr_dir, '..', "params.yaml")))['download']
 
 def download(kaggle_dataset, kaggle_file, download_folder, download_file):
 
@@ -42,16 +40,17 @@ def download(kaggle_dataset, kaggle_file, download_folder, download_file):
         # ... if the kaggle.json file is nowhere to be found
         except OSError as e:
             # Handle the exception
-            logging.error(f"The Kaggle credentials are missing!")
+            logging.error("The Kaggle credentials are missing!")
             sys.exit(1)
 
         # Any other error
         except Exception:
-            logging.error(f"Unknown error. The file wasn't downloaded.")
+            logging.error("Unknown error. The file wasn't downloaded.")
             sys.exit(1)
 
+
+# The download.py parameters from the params.yaml file
+params = yaml.safe_load(open(os.path.join(curr_dir, '..', "params.yaml")))['download']
+
 if __name__ == "__main__":
-    download(kaggle_dataset = params["kaggle_dataset"], 
-             kaggle_file = params["kaggle_file"], 
-             download_folder = params["download_folder"],
-             download_file = params["download_file"])
+    download(**params)
