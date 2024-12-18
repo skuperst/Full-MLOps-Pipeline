@@ -37,8 +37,9 @@ def train(**kwargs):
     del(X,y)
 
     # Save the test dataset
-    X_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_X_file_path']))
-    y_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_y_file_path']))
+    X_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_X_file_path']), index=False)
+    y_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_y_file_path']), index=False)
+    
     del(X_test, y_test)
 
 
@@ -69,7 +70,6 @@ def train(**kwargs):
     del(best_model, X_train, y_train)
 
 # The train.py parameters from the params.yaml file
-print(os.path.join(curr_dir, os.pardir, "params.yaml"))
 params = yaml.safe_load(open(os.path.join(curr_dir, '..', "params.yaml")))['train']
 
 if __name__ == "__main__":
