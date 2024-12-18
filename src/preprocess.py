@@ -12,7 +12,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def preprocess(**kwargs):
     
     # Download the input file into a dataframe
-    Data = pd.read_csv(os.path.join(curr_dir, '..', kwargs['input_folder'], kwargs['input_file']))
+    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['input_folder'], kwargs['input_file']))
     logging.info("The data has {} rows and {} columns".format(*Data.shape))
 
     # Rename the columns
@@ -47,7 +47,7 @@ def preprocess(**kwargs):
         
     # Save the preprocessed file
     try:
-        Data.to_csv(os.path.join(curr_dir, '..', kwargs['output_file_path']))
+        Data.to_csv(os.path.join(curr_dir, os.pardir, kwargs['output_file_path']))
         logging.info("The preprocessed CSV file was successfully saved.")
     except:
         logging.error("The preprocessed CSV file was not saved!")

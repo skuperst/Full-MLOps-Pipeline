@@ -21,7 +21,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def train(**kwargs):
 
     # Download the data
-    Data = pd.read_csv(os.path.join(curr_dir, '..', kwargs['file_path']))
+    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['file_path']))
 
     # Split the prediction column from the dataframe 
     output_column = kwargs['prediction_column'] 
@@ -33,7 +33,14 @@ def train(**kwargs):
     X = X.apply(lambda col: col.astype('category') if col.dtype == 'object' else col, axis = 0)
 
     logging.info("Splitting the data.")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=kwargs['random_state'])  
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=kwargs['random_state'])
+    del(X,y)
+
+    # Save the test dataset
+    X_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_X_file_path']))
+    y_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_y_file_path']))
+    del(X_test, y_test)
+
 
     # Define the classifier
     abc = AdaBoostClassifier(DecisionTreeClassifier())
@@ -45,7 +52,7 @@ def train(**kwargs):
 
     total_sets_of_parameters = math.prod([len(v) for v in grid_parameters.values()])
     logging.info("Runnning the grid search with the total of {} sets of hyperparameters (may take up to {} seconds).".format(
-                                                                    total_sets_of_parameters, int(total_sets_of_parameters * 0.3)))
+                                                                    total_sets_of_parameters, int(total_sets_of_parameters * 0.6)))
     grid_search = GridSearchCV(abc, grid_parameters, scoring='accuracy', n_jobs=-1, verbose=0)
     grid_search.fit(X_train,y_train)
 
@@ -57,10 +64,12 @@ def train(**kwargs):
 
     # Save the model
     pickle.dump(best_model,open(kwargs['model_file_path'],'wb'))
-    logging.info("The best model saved.")    
+    logging.info("The best model is saved.")    
 
+    del(best_model, X_train, y_train)
 
-# The preprocess.py parameters from the params.yaml file
+# The train.py parameters from the params.yaml file
+print(os.path.join(curr_dir, os.pardir, "params.yaml"))
 params = yaml.safe_load(open(os.path.join(curr_dir, '..', "params.yaml")))['train']
 
 if __name__ == "__main__":

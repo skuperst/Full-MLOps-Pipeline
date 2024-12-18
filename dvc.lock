@@ -5,8 +5,8 @@ stages:
     deps:
     - path: src/download.py
       hash: md5
-      md5: d0e717a073301ac3eb69388a7690c4eb
-      size: 1812
+      md5: e6e0b88394d5b42f3dfed2d854a20ed1
+      size: 1877
       isexec: true
     params:
       params.yaml:
@@ -31,8 +31,8 @@ stages:
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 5aee1d03772945e1d7a2bf7a96fd156b
-      size: 2167
+      md5: 3e6332133ff69f8b92199868f1aa9a46
+      size: 2177
       isexec: true
     params:
       params.yaml:
@@ -63,14 +63,16 @@ stages:
       isexec: true
     - path: src/train.py
       hash: md5
-      md5: 669616c04443151e3fa37446bfbd1c8b
-      size: 2532
+      md5: d167edcc53ca526d226cb38f839eba4a
+      size: 2856
       isexec: true
     params:
       params.yaml:
         train:
           file_path: data/preprocessed_data.csv
           prediction_column: left_or_not
+          test_X_file_path: data/test_X.csv
+          test_y_file_path: data/test_y.csv
           random_state: 42
           max_depth:
           - 2
@@ -92,6 +94,6 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: fabb9f380a43fad6efcbdfc180781f66
+      md5: 3534c3c3a14cdcd6e2eb056a24da3fc9
       size: 26464
       isexec: true
