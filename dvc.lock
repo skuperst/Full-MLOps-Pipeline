@@ -31,8 +31,8 @@ stages:
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 3e6332133ff69f8b92199868f1aa9a46
-      size: 2177
+      md5: 4c0faadeede9c9f77c0d1476c49ce3d1
+      size: 2190
       isexec: true
     params:
       params.yaml:
@@ -50,21 +50,21 @@ stages:
     outs:
     - path: data/preprocessed_data.csv
       hash: md5
-      md5: 421dacd3311e6ea369c8cd620ab05d6d
-      size: 1575772
+      md5: 6f27b1770ba03d23c0f84f68a674adfb
+      size: 1496887
       isexec: true
   train:
     cmd: python src/train.py
     deps:
     - path: data/preprocessed_data.csv
       hash: md5
-      md5: 421dacd3311e6ea369c8cd620ab05d6d
-      size: 1575772
+      md5: 6f27b1770ba03d23c0f84f68a674adfb
+      size: 1496887
       isexec: true
     - path: src/train.py
       hash: md5
-      md5: d167edcc53ca526d226cb38f839eba4a
-      size: 2856
+      md5: 4f853b59aa18a1bbe3391d3877398998
+      size: 2831
       isexec: true
     params:
       params.yaml:
@@ -94,16 +94,45 @@ stages:
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: 824a865194d0c8d253ce0a16c0868ea4
-      size: 325220
+      md5: fbb5a375c4815ec924c4f1ea87f67008
+      size: 293702
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: cfd7b5362674b76508f9ea55a45a04c3
-      size: 21766
+      md5: f17ddd6ddc87de718208a781d376e1ca
+      size: 6012
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 762ae00470cbf6f645e2c05242f1bab3
-      size: 26464
+      md5: cb5f909b4e112d47043f55e517028feb
+      size: 77256
       isexec: true
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/test_X.csv
+      hash: md5
+      md5: fbb5a375c4815ec924c4f1ea87f67008
+      size: 293702
+      isexec: true
+    - path: data/test_y.csv
+      hash: md5
+      md5: f17ddd6ddc87de718208a781d376e1ca
+      size: 6012
+      isexec: true
+    - path: models/model.pkl
+      hash: md5
+      md5: cb5f909b4e112d47043f55e517028feb
+      size: 77256
+      isexec: true
+    - path: src/evaluate.py
+      hash: md5
+      md5: 5423d3e0ac321d898af766228b17b174
+      size: 884
+      isexec: true
+    params:
+      params.yaml:
+        evaluate:
+          model_file_path: models/model.pkl
+          test_X_file_path: data/test_X.csv
+          test_y_file_path: data/test_y.csv

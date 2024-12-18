@@ -30,3 +30,14 @@ stages:
     - ${train.test_X_file_path}
     - ${train.test_y_file_path}    
     - ${train.model_file_path}
+
+  evaluate:
+    cmd: python ${evaluate_script_file}
+    deps:
+    - ${evaluate_script_file}
+    - ${train.test_X_file_path}
+    - ${train.test_y_file_path}    
+    - ${train.model_file_path}
+    params:
+    - evaluate 
+    #outs:
