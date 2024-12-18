@@ -37,7 +37,7 @@ def preprocess(**kwargs):
         Data = Data[~Data.duplicated(list(Data.columns))]
         logging.info("Duplicates removed (if any).")
 
-    # One hot transformation
+    # One-hot transformation
     categorical_columns =  Data.select_dtypes(exclude=['int', 'float']).columns
     if len(categorical_columns) > 0:
         Data = pd.get_dummies(Data, categorical_columns, drop_first=False)
@@ -47,7 +47,7 @@ def preprocess(**kwargs):
         
     # Save the preprocessed file
     try:
-        Data.to_csv(os.path.join(curr_dir, os.pardir, kwargs['output_file_path']))
+        Data.to_csv(os.path.join(curr_dir, os.pardir, kwargs['output_file_path']), index=False)
         logging.info("The preprocessed CSV file was successfully saved.")
     except:
         logging.error("The preprocessed CSV file was not saved!")
