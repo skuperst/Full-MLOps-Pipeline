@@ -9,18 +9,26 @@ download:
 preprocess_script_file: src/preprocess.py
 
 preprocess:
-  input_folder: *input_folder #"data/raw_data.csv"                     # The raw file folder
+  input_folder: *input_folder                                          # The raw file folder
   input_file: *input_file                                              # The raw file name
   output_file_path: &output_file_path "data/preprocessed_data.csv"     # The preprocessed file path
   rename_map:                                                          # New names for the columns
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
-    left: left_or_not
+    left:  &prediction_column left_or_not
     promotion_last_5years: promoted_last_5_years
     Department: department
   keep_duplicates: True                                                # Should one keep the duplicate rows or not
 
-# train_script_file: src/train.py
+train_script_file: src/train.py
 
-# train:
-#   file_path: *output_file_path
+train:
+  file_path: *output_file_path
+  prediction_column: *prediction_column
+  random_state: 42
+  max_depth: [2, 4, 1]
+  min_samples_split: [6, 15, 4] 
+  n_estimators: [30, 61, 10]
+  learning_rate: [0.8, 1.3, 0.2]
+  model_file_path: models/model.pkl
+

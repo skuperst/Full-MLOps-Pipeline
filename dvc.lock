@@ -5,15 +5,16 @@ stages:
     deps:
     - path: src/download.py
       hash: md5
-      md5: 044a415d1419f903413c6c32c969c2cc
-      size: 2009
+      md5: d0e717a073301ac3eb69388a7690c4eb
+      size: 1812
       isexec: true
     params:
       params.yaml:
-        download.download_file: raw_data.csv
-        download.download_folder: data
-        download.kaggle_dataset: manidevesh/hr-dataset-analysis
-        download.kaggle_file: HR_DataSet.csv
+        download:
+          kaggle_dataset: manidevesh/hr-dataset-analysis
+          kaggle_file: HR_DataSet.csv
+          download_folder: data
+          download_file: raw_data.csv
     outs:
     - path: data/raw_data.csv
       hash: md5
@@ -30,24 +31,67 @@ stages:
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: f043577804ee9861d570e704cd5e2f02
-      size: 1928
+      md5: 5aee1d03772945e1d7a2bf7a96fd156b
+      size: 2167
       isexec: true
     params:
       params.yaml:
-        preprocess.input_file: raw_data.csv
-        preprocess.input_folder: data
-        preprocess.keep_duplicates: true
-        preprocess.output_file_path: data/preprocessed_data.csv
-        preprocess.rename_map:
-          time_spend_company: time_spend_in_company
-          Work_accident: had_work_accidents
-          left: left_or_not
-          promotion_last_5years: promoted_last_5_years
-          Department: department
+        preprocess:
+          input_folder: data
+          input_file: raw_data.csv
+          output_file_path: data/preprocessed_data.csv
+          rename_map:
+            time_spend_company: time_spend_in_company
+            Work_accident: had_work_accidents
+            left: left_or_not
+            promotion_last_5years: promoted_last_5_years
+            Department: department
+          keep_duplicates: true
     outs:
     - path: data/preprocessed_data.csv
       hash: md5
-      md5: 3f8433dba8501c9782ccc9ad4dac9aa8
-      size: 631473
+      md5: 421dacd3311e6ea369c8cd620ab05d6d
+      size: 1575772
+      isexec: true
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/preprocessed_data.csv
+      hash: md5
+      md5: 421dacd3311e6ea369c8cd620ab05d6d
+      size: 1575772
+      isexec: true
+    - path: src/train.py
+      hash: md5
+      md5: 669616c04443151e3fa37446bfbd1c8b
+      size: 2532
+      isexec: true
+    params:
+      params.yaml:
+        train:
+          file_path: data/preprocessed_data.csv
+          prediction_column: left_or_not
+          random_state: 42
+          max_depth:
+          - 2
+          - 4
+          - 1
+          min_samples_split:
+          - 6
+          - 15
+          - 4
+          n_estimators:
+          - 30
+          - 61
+          - 10
+          learning_rate:
+          - 0.8
+          - 1.3
+          - 0.2
+          model_file_path: models/model.pkl
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: fabb9f380a43fad6efcbdfc180781f66
+      size: 26464
       isexec: true

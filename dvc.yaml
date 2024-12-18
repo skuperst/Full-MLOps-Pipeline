@@ -1,25 +1,30 @@
 stages:
+
   download:
     cmd: python ${download_script_file}
     deps:
     - ${download_script_file}
     params:
-    - download.kaggle_dataset
-    - download.kaggle_file
-    - download.download_folder
-    - download.download_file
+     - download
     outs:
     - ${download.download_folder}/${download.download_file}
+
   preprocess:
     cmd: python ${preprocess_script_file}
     deps:
     - ${preprocess_script_file}
     - ${download.download_folder}/${download.download_file} 
     params:
-    - preprocess.input_folder
-    - preprocess.input_file
-    - preprocess.output_file_path
-    - preprocess.rename_map
-    - preprocess.keep_duplicates  
+    - preprocess 
     outs:
     - ${preprocess.output_file_path}
+
+  train:
+    cmd: python ${train_script_file}
+    deps:
+    - ${train_script_file}
+    - ${preprocess.output_file_path}     
+    params:
+    - train 
+    outs:
+    - ${train.model_file_path}
