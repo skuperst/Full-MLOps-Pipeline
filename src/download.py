@@ -13,7 +13,7 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def download(**kwargs): #kaggle_dataset, kaggle_file, download_folder, download_file
 
     # The full folder path to dlownload the file to
-    download_path = os.path.join(curr_dir, '..', kwargs['download_folder'])
+    download_path = os.path.join(curr_dir, os.pardir, kwargs['download_folder'])
 
     # Check whether the file has already been downloaded
     if os.path.exists(os.path.join(download_path, kwargs['download_file'])):
@@ -29,6 +29,7 @@ def download(**kwargs): #kaggle_dataset, kaggle_file, download_folder, download_
             from kaggle.api.kaggle_api_extended import KaggleApi
             api = KaggleApi()
             api.authenticate()
+
             with contextlib.redirect_stdout(io.StringIO()): # Logging suppression
                 # Download the file
                 api.dataset_download_files(dataset = kwargs['kaggle_dataset'], path = download_path, quiet=True, unzip=True)

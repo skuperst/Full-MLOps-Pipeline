@@ -1,8 +1,16 @@
 stages:
 
+  set_experiment_name:
+    cmd: python ${set_experiment_name_script_file}
+    deps:
+    - ${set_experiment_name_script_file}
+    outs:
+    - mlflow_experiment_name.yaml
+
   download:
     cmd: python ${download_script_file}
     deps:
+    - params.yaml
     - ${download_script_file}
     params:
      - download
@@ -12,6 +20,7 @@ stages:
   preprocess:
     cmd: python ${preprocess_script_file}
     deps:
+    - params.yaml
     - ${preprocess_script_file}
     - ${download.download_folder}/${download.download_file} 
     params:
@@ -22,6 +31,7 @@ stages:
   train:
     cmd: python ${train_script_file}
     deps:
+    - params.yaml
     - ${train_script_file}
     - ${preprocess.output_file_path}     
     params:
@@ -34,6 +44,7 @@ stages:
   evaluate:
     cmd: python ${evaluate_script_file}
     deps:
+    - params.yaml
     - ${evaluate_script_file}
     - ${train.test_X_file_path}
     - ${train.test_y_file_path}    

@@ -4,13 +4,23 @@ import os
 import sys
 import pandas as pd
 
-logging.basicConfig(level=logging.INFO)
+import mlflow
+
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
+from utils.mlflow_utils import configure_mlflow
+
+experiment_name = configure_mlflow()
+
 def preprocess(**kwargs):
     
+    # Initiate logging
+    logging.basicConfig(level=logging.INFO)
+
     # Download the input file into a dataframe
     Data = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['input_folder'], kwargs['input_file']))
     logging.info("The data has {} rows and {} columns".format(*Data.shape))
@@ -32,19 +42,52 @@ def preprocess(**kwargs):
     else:
         logging.info("No missing data points were found.")
 
+
     # Drop the duplicates (or not)
     if kwargs['keep_duplicates'] == False:
         Data = Data[~Data.duplicated(list(Data.columns))]
         logging.info("Duplicates removed (if any).")
 
+
+    # Start an MLflow run
+    with mlflow.start_run():
+
+        mlflow.set_tag('mlflow.runName', 'preprocess')
+
+        for idx, col, t in Data.dtypes.reset_index().reset_index().values:
+            plt.figure(figsize=(7, 4))
+            color = plt.colormaps.get_cmap('Dark2')(idx / Data.columns.size)
+            if t == 'object':
+                plt.bar(*zip(*Data[col].value_counts().reset_index().values), color=color)
+                if Data[col].nunique() > 5:
+                    plt.xticks(rotation = 60)
+            else:
+                plt.hist(Data[col], bins = 100, color=color)
+            plt.title(col, fontsize=16)
+            plt.ylabel('Count')
+            if set(Data[col]).issubset(set([0., 1.])):
+                # Remove all ticks and labels
+                plt.xticks([])  # Remove x-axis ticks
+                plt.yticks([])  # Remove y-axis ticks
+                plt.tick_params(bottom=False, left=False)  # Remove tick marks
+                # Add custom ticks for 0 and 1
+                plt.xticks([0, 1], ['False', 'True'])
+
+            mlflow.log_figure(plt.gcf(), "{}.png".format(col))
+        plt.close()
+        del(idx, col, t)
+
+    logging.info("{} data histograms (one per column) were added to the MLFlow.".format(len(Data.columns)))
+
     # One-hot transformation
     categorical_columns =  Data.select_dtypes(exclude=['int', 'float']).columns
     if len(categorical_columns) > 0:
         Data = pd.get_dummies(Data, categorical_columns, drop_first=False)
-        logging.info('One-hot transform applied for the following columns: {}.'.format(', '.join(categorical_columns)))
+        logging.info('One-hot transform was applied for the following columns: {}.'.format(', '.join(categorical_columns)))
     else:
         logging.info('No categorical columns detected. One-hot transform is not applied.')
-        
+
+
     # Save the preprocessed file
     try:
         Data.to_csv(os.path.join(curr_dir, os.pardir, kwargs['output_file_path']), index=False)
@@ -53,10 +96,11 @@ def preprocess(**kwargs):
         logging.error("The preprocessed CSV file was not saved!")
         sys.exit(1)
 
+
     del(Data)
 
 # The preprocess.py parameters from the params.yaml file
-params = yaml.safe_load(open(os.path.join(curr_dir, '..', "params.yaml")))['preprocess']
+params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['preprocess']
 
 if __name__ == "__main__":
     preprocess(**params)

@@ -1,38 +1,43 @@
+set_experiment_name_script_file: src/set_experiment_name.py
+
+experiment_name: "Experiment: 2024/12/22 (18:23)"   # The CURRENT MLFlow experiment name
+
 download_script_file: src/download.py
 
 download:
   kaggle_dataset: manidevesh/hr-dataset-analysis  # The Kaggle file URL
-  kaggle_file: "HR_DataSet.csv"                   # The file name 
+  kaggle_file: "HR_DataSet.csv"                   # The original file name 
   download_folder: &input_folder data             # The folder to download the file to
   download_file: &input_file "raw_data.csv"       # The new name
 
 preprocess_script_file: src/preprocess.py
 
 preprocess:
-  input_folder: *input_folder                                          # The raw file folder
-  input_file: *input_file                                              # The raw file name
+  input_folder: *input_folder
+  input_file: *input_file
   output_file_path: &output_file_path "data/preprocessed_data.csv"     # The preprocessed file path
   rename_map:                                                          # New names for the columns
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
-    left:  &prediction_column left_or_not
+    left: &prediction_column left_or_not
     promotion_last_5years: promoted_last_5_years
     Department: department
-  keep_duplicates: True                                                # Should one keep the duplicate rows or not
+  keep_duplicates: true                                                # Should one keep the duplicate rows or not
 
 train_script_file: src/train.py
 
 train:
   file_path: *output_file_path
   prediction_column: *prediction_column
-  test_X_file_path: &test_X_file_path "data/test_X.csv"
-  test_y_file_path: &test_y_file_path "data/test_y.csv"
+  test_X_file_path: &test_X_file_path "data/test_X.csv"                # The full path of the test dataset (features)
+  test_y_file_path: &test_y_file_path "data/test_y.csv"                # The full path of the test dataset (targets)
   random_state: 42
-  max_depth: [2, 4, 1]
-  min_samples_split: [6, 15, 4] 
-  n_estimators: [30, 61, 10]
-  learning_rate: [0.8, 1.3, 0.2]
-  model_file_path: &model_file_path models/model.pkl
+  cross_validations: 3
+  max_depth: [2, 3, 3] # [1, 4, 1]                                     # Hyperparemeter ranges for the grid search
+  min_samples_split: [8, 9, 1] #[4, 13, 4] 
+  n_estimators: [40, 41, 10] #[20, 61, 10]
+  learning_rate: [0.8, 1.1, 0.2] #[0.8, 1.3, 0.2]
+  model_file_path: &model_file_path models/model.pkl                   # The full path of the best training model
 
 evaluate_script_file: src/evaluate.py
 
