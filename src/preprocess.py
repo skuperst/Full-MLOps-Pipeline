@@ -13,14 +13,14 @@ from datetime import datetime
 
 import json
 
+from utils.mlflow_utils import configure_mlflow
+
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
-from utils.mlflow_utils import configure_mlflow
-
-experiment_name = configure_mlflow()
-
 def preprocess(**kwargs):
+
+    configure_mlflow()
     
     # Initiate logging
     logging.basicConfig(level=logging.INFO)

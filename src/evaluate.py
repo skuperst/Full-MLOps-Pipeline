@@ -3,6 +3,7 @@ import yaml
 import os
 import pickle
 import pandas as pd
+import numpy as np
 
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
 
@@ -15,22 +16,19 @@ import seaborn as sns
 from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import MinMaxScaler
 
-import math
-
 import mlflow
 from mlflow.models import infer_signature
 
 from datetime import datetime
 
+from utils.mlflow_utils import configure_mlflow
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
-from utils.mlflow_utils import configure_mlflow
-
-configure_mlflow()
-
 def evaluate(**kwargs):
+
+    configure_mlflow()
 
     # Initiate logging
     logging.basicConfig(level=logging.INFO)
@@ -57,25 +55,27 @@ def evaluate(**kwargs):
     # F1 score
     f1 = f1_score(y_test, y_pred)
 
+    # Extract feature importances
+    permutation_importance_output = permutation_importance(model, X_test, y_test, 
+                                                            n_repeats=kwargs['n_repeats'], random_state=kwargs['random_state'])
+    
+    # Sort the features from the most important to the least important
+    sorted_features, sorted_importances, sorted_std = zip(*sorted(zip(X_test.columns, 
+                                                                    permutation_importance_output.importances_mean, 
+                                                                    permutation_importance_output.importances_std
+                                                                    ), key=lambda x: x[1], reverse=False))
+    
     with mlflow.start_run():
 
         mlflow.set_tag('mlflow.runName', "Evaluate: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
- 
-        # Extract feature importances
-        permutation_importance_output = permutation_importance(model, X_test, y_test, 
-                                                               n_repeats=kwargs['n_repeats'], random_state=kwargs['random_state'])
+
+        plt.figure(figsize=(12, 4))
 
         # Set the color scheme
-        cmap = LinearSegmentedColormap.from_list('Green',["w", "g"], N=256)    
-        color = cmap((MinMaxScaler().fit_transform(permutation_importance_output.importances_mean.reshape(-1, 1)).flatten() * 256).astype(int))
+        cmap = LinearSegmentedColormap.from_list('Green',["w", "g"], N=256)
+        color = cmap((MinMaxScaler().fit_transform(np.array(sorted_importances).reshape(-1, 1)).flatten() * 256).astype(int))
 
-        # Sort the features from the most important to the least important
-        sorted_features, sorted_importances, sorted_std = zip(*sorted(zip(X_test.columns, 
-                                                                          permutation_importance_output.importances_mean, 
-                                                                          permutation_importance_output.importances_std
-                                                                          ), key=lambda x: x[1], reverse=False))
         # Plot horizontal bar chart
-        plt.figure(figsize=(12, 4))
         plt.barh(y=sorted_features, width=sorted_importances, xerr=sorted_std, capsize=4, align='center', color=color)
 
         plt.xlabel('Permutation Importance')
@@ -85,11 +85,12 @@ def evaluate(**kwargs):
         mlflow.log_figure(plt.gcf(), "Feature Permutation Importance.png")
         plt.close()
 
-        logging.info("The feature permutation importance was logged.") 
+        logging.info("The feature permutation importance histogram was logged.") 
 
-        plt.figure(figsize=(8, 12))
+        plt.figure(figsize=(6, 6))
         image_labels = ['False','True'] 
-        sns.heatmap(cm, annot=True, fmt='d', xticklabels=image_labels , yticklabels=image_labels[::-1], cbar=False)
+        sns.heatmap(cm, annot=True, annot_kws={"fontsize": 18}, fmt='d', xticklabels=image_labels , yticklabels=image_labels[::-1], 
+                    cbar=False)
         plt.xlabel('Predicted')
         plt.ylabel('Actual')
         plt.title('Confusion Matrix')
@@ -99,7 +100,7 @@ def evaluate(**kwargs):
 
         logging.info("The confusion matrix was logged.") 
 
-        mlflow.log_metric("Out-of-sampe Accuracy", accuracy)
+        mlflow.log_metric("Out-of-sample Accuracy", accuracy)
         mlflow.log_metric("Precision", precision)
         mlflow.log_metric("Recall", recall)
         mlflow.log_metric("F1-score", f1)

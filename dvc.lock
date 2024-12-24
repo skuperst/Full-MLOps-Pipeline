@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
-      size: 2061
+      md5: 2964ee536b420aa9be03b6b69174e596
+      size: 2159
       isexec: true
     - path: src/download.py
       hash: md5
@@ -36,13 +36,13 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
-      size: 2061
+      md5: 2964ee536b420aa9be03b6b69174e596
+      size: 2159
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 109bdf922594ffb5a38b57fd546b71ec
-      size: 4496
+      md5: 275b313bf83f158d1c50e0f54ffab49c
+      size: 4482
       isexec: true
     params:
       params.yaml:
@@ -79,13 +79,13 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
-      size: 2061
+      md5: 2964ee536b420aa9be03b6b69174e596
+      size: 2159
       isexec: true
     - path: src/train.py
       hash: md5
-      md5: 87fb22c68474eed56cc64883dc7b2866
-      size: 5533
+      md5: d8ae14c18864a948e8f01f08b9347f1a
+      size: 5489
       isexec: true
     params:
       params.yaml:
@@ -126,7 +126,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: dba50afcaf960d8d0c46a2aa34fc0c31
+      md5: 333f36963321ad7d709a034304bbd357
       size: 32667
       isexec: true
   evaluate:
@@ -144,18 +144,18 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: dba50afcaf960d8d0c46a2aa34fc0c31
+      md5: 333f36963321ad7d709a034304bbd357
       size: 32667
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
-      size: 2061
+      md5: 2964ee536b420aa9be03b6b69174e596
+      size: 2159
       isexec: true
     - path: src/evaluate.py
       hash: md5
-      md5: a326cd58a92ad9603969cfbfc0202123
-      size: 4102
+      md5: 8fc11d44806a8cda31d0ca0eae7dd37d
+      size: 4074
       isexec: true
     params:
       params.yaml:
@@ -170,12 +170,12 @@ stages:
     deps:
     - path: src/set_experiment_name.py
       hash: md5
-      md5: ce24aba3342465445db3dee78b246604
-      size: 723
+      md5: a588e137ec3390501112d9d18cb6b34f
+      size: 999
       isexec: true
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 86dc34ac82e8cb64e7f83e5cdbc84ab1
+      md5: f50364dc99abf5e456ee51a0fe74ffc9
       size: 43
       isexec: true

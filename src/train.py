@@ -23,14 +23,15 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from  matplotlib.colors import LinearSegmentedColormap 
 
-# Current directory
-curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 from utils.mlflow_utils import configure_mlflow
 
-configure_mlflow()
+# Current directory
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def train(**kwargs):
+
+    configure_mlflow()
 
     # Initiate logging
     logging.basicConfig(level=logging.INFO)
@@ -44,11 +45,9 @@ def train(**kwargs):
     y = Data[output_column]
 
     # Convert objects to categories
-    logging.info("Convert object type columns to categories.")
-    print(X.columns)
     X = X.apply(lambda col: col.astype('category') if col.dtype == 'object' else col, axis = 0)
-    print(X.columns)
-    
+    logging.info("Convert object type columns to categories.")
+
     logging.info("Splitting the data.")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=kwargs['random_state'])
     del(X,y)
@@ -101,7 +100,7 @@ def train(**kwargs):
 
     with mlflow.start_run():
 
-        mlflow.set_tag('mlflow.runName', "Evaluate: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
+        mlflow.set_tag('mlflow.runName', "Train: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
         
         sorted_indices = np.argsort(grid_search.cv_results_['mean_test_Accuracy'])
         for score in scoring.keys():

@@ -8,11 +8,17 @@ from datetime import datetime
 
 def configure_mlflow():
 
+    # Initiate logging
+    logging.basicConfig(level=logging.INFO)
+
     # Current directory
     curr_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # The preprocess.py parameters from the params.yaml file
-    experiment_name = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, os.pardir, "mlflow_experiment_name.yaml")))['exp_name']
+    # The full path to the file with the experiment current name
+    experiment_name_file_path = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, os.pardir, "params.yaml")))['mlflow_experiment_name_file_path']
+
+    # The experiment name from the params.yaml file
+    experiment_name = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, os.pardir, experiment_name_file_path)))['exp_name']
 
     # Load the .env file
     load_dotenv()
@@ -24,9 +30,6 @@ def configure_mlflow():
     os.environ["MLFLOW_TRACKING_URI"] = mlflow_uri
     os.environ["MLFLOW_TRACKING_USERNAME"] = user_name
     os.environ["MLFLOW_TRACKING_PASSWORD"] = password
-
-    # Initiate logging
-    logging.basicConfig(level=logging.INFO)
 
     try:
         # Set tracking URI programmatically (reads from environment variable)
