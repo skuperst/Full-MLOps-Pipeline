@@ -14,6 +14,7 @@ params_file_path = os.path.join(curr_dir, os.pardir, 'mlflow_experiment_name.yam
 
 # Save the updated configuration back to the params.yaml file
 with open(params_file_path, "w") as file:
+   print(datetime.now().strftime("%Y/%m/%d (%H:%M)"))
    yaml.dump({'exp_name': "Experiment: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)"))}, file)
 
 logging.info("The experiment date in params.yaml was updated successfully.")

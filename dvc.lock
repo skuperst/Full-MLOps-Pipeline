@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 32881420f32e5a0263fea812a3633596
-      size: 2045
+      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
+      size: 2061
       isexec: true
     - path: src/download.py
       hash: md5
@@ -36,13 +36,13 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 32881420f32e5a0263fea812a3633596
-      size: 2045
+      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
+      size: 2061
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 0dad1a7e1dc8104310051c68c538f4ed
-      size: 3649
+      md5: 109bdf922594ffb5a38b57fd546b71ec
+      size: 4496
       isexec: true
     params:
       params.yaml:
@@ -57,7 +57,13 @@ stages:
             promotion_last_5years: promoted_last_5_years
             Department: department
           keep_duplicates: true
+          onehot_name_dictionary_file_path: data/onehot_name_dictionary.json
     outs:
+    - path: data/onehot_name_dictionary.json
+      hash: md5
+      md5: 99a179c956726e4d4335f2046caef4ba
+      size: 436
+      isexec: true
     - path: data/preprocessed_data.csv
       hash: md5
       md5: 6f27b1770ba03d23c0f84f68a674adfb
@@ -73,13 +79,13 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 32881420f32e5a0263fea812a3633596
-      size: 2045
+      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
+      size: 2061
       isexec: true
     - path: src/train.py
       hash: md5
-      md5: 28ef4159d42fef168723de8e21aef63e
-      size: 5238
+      md5: 87fb22c68474eed56cc64883dc7b2866
+      size: 5533
       isexec: true
     params:
       params.yaml:
@@ -120,7 +126,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 0ee087707f64cde28f3fda56290400f6
+      md5: dba50afcaf960d8d0c46a2aa34fc0c31
       size: 32667
       isexec: true
   evaluate:
@@ -138,18 +144,18 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 0ee087707f64cde28f3fda56290400f6
+      md5: dba50afcaf960d8d0c46a2aa34fc0c31
       size: 32667
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 32881420f32e5a0263fea812a3633596
-      size: 2045
+      md5: 0e1eb2104a29fb41dfe1b7d578b7d459
+      size: 2061
       isexec: true
     - path: src/evaluate.py
       hash: md5
-      md5: b2b0e6857e5d31f5e240a7c735432e9a
-      size: 2213
+      md5: a326cd58a92ad9603969cfbfc0202123
+      size: 4102
       isexec: true
     params:
       params.yaml:
@@ -157,17 +163,19 @@ stages:
           model_file_path: models/model.pkl
           test_X_file_path: data/test_X.csv
           test_y_file_path: data/test_y.csv
+          n_repeats: 10
+          random_state: 42
   set_experiment_name:
     cmd: python src/set_experiment_name.py
     deps:
     - path: src/set_experiment_name.py
       hash: md5
-      md5: e611c2e2480477d88bdbacfcb845cca5
-      size: 669
+      md5: ce24aba3342465445db3dee78b246604
+      size: 723
       isexec: true
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: e6254183f2033ce198d8b29b2f5e00f6
+      md5: 86dc34ac82e8cb64e7f83e5cdbc84ab1
       size: 43
       isexec: true

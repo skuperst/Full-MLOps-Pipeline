@@ -1,7 +1,5 @@
 set_experiment_name_script_file: src/set_experiment_name.py
 
-experiment_name: "Experiment: 2024/12/22 (18:23)"   # The CURRENT MLFlow experiment name
-
 download_script_file: src/download.py
 
 download:
@@ -23,6 +21,8 @@ preprocess:
     promotion_last_5years: promoted_last_5_years
     Department: department
   keep_duplicates: true                                                # Should one keep the duplicate rows or not
+  onehot_name_dictionary_file_path: "data/onehot_name_dictionary.json"
+
 
 train_script_file: src/train.py
 
@@ -45,4 +45,5 @@ evaluate:
   model_file_path: *model_file_path
   test_X_file_path: *test_X_file_path
   test_y_file_path: *test_y_file_path
-
+  n_repeats: 10
+  random_state: 42

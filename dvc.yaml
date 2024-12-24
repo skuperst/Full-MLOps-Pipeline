@@ -27,6 +27,7 @@ stages:
     - preprocess 
     outs:
     - ${preprocess.output_file_path}
+    - ${preprocess.onehot_name_dictionary_file_path}
 
   train:
     cmd: python ${train_script_file}

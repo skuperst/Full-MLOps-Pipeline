@@ -10,6 +10,8 @@ import numpy as np
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.inspection import permutation_importance
+from sklearn.preprocessing import MinMaxScaler
 
 import math
 
@@ -17,6 +19,9 @@ import mlflow
 from mlflow.models import infer_signature
 
 from datetime import datetime
+
+import matplotlib.pyplot as plt
+from  matplotlib.colors import LinearSegmentedColormap 
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -40,8 +45,10 @@ def train(**kwargs):
 
     # Convert objects to categories
     logging.info("Convert object type columns to categories.")
+    print(X.columns)
     X = X.apply(lambda col: col.astype('category') if col.dtype == 'object' else col, axis = 0)
-
+    print(X.columns)
+    
     logging.info("Splitting the data.")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=kwargs['random_state'])
     del(X,y)
@@ -94,7 +101,7 @@ def train(**kwargs):
 
     with mlflow.start_run():
 
-        mlflow.set_tag('mlflow.runName', 'train')
+        mlflow.set_tag('mlflow.runName', "Evaluate: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
         
         sorted_indices = np.argsort(grid_search.cv_results_['mean_test_Accuracy'])
         for score in scoring.keys():
