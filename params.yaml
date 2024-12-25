@@ -1,5 +1,7 @@
 set_experiment_name_script_file: src/set_experiment_name.py
-mlflow_experiment_name_file_path: &mlflow_experiment_name_file_path "mlflow_experiment_name.yaml"
+
+# The path of the json file with the MLFlow experiment name
+mlflow_experiment_name_file_path: &mlflow_experiment_name_file_path "mlflow_experiment_name.yaml" 
 
 download_script_file: src/download.py
 
