@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 512008ced25cf9d6201c196fff2a5fe4
-      size: 2404
+      md5: 229d3aee6420a5fd218433c313da8c5f
+      size: 2412
       isexec: true
     - path: src/download.py
       hash: md5
@@ -36,20 +36,20 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 512008ced25cf9d6201c196fff2a5fe4
-      size: 2404
+      md5: 229d3aee6420a5fd218433c313da8c5f
+      size: 2412
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: a31e3e35ccb3bf1cfc79af075f18562c
-      size: 4645
+      md5: 67ef476104062de341c04cca0b74c28b
+      size: 4948
       isexec: true
     params:
       params.yaml:
         preprocess:
           input_folder: data
           input_file: raw_data.csv
-          output_file_path: data/preprocessed_data.csv
+          output_file_path: data/preprocessed_current_data.csv
           rename_map:
             time_spend_company: time_spend_in_company
             Work_accident: had_work_accidents
@@ -64,7 +64,7 @@ stages:
       md5: 8155109279f471fe3577e6cf5839f0ca
       size: 776
       isexec: true
-    - path: data/preprocessed_data.csv
+    - path: data/preprocessed_current_data.csv
       hash: md5
       md5: 6f27b1770ba03d23c0f84f68a674adfb
       size: 1496887
@@ -72,15 +72,15 @@ stages:
   train:
     cmd: python src/train.py
     deps:
-    - path: data/preprocessed_data.csv
+    - path: data/preprocessed_current_data.csv
       hash: md5
       md5: 6f27b1770ba03d23c0f84f68a674adfb
       size: 1496887
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 512008ced25cf9d6201c196fff2a5fe4
-      size: 2404
+      md5: 229d3aee6420a5fd218433c313da8c5f
+      size: 2412
       isexec: true
     - path: src/train.py
       hash: md5
@@ -90,7 +90,7 @@ stages:
     params:
       params.yaml:
         train:
-          file_path: data/preprocessed_data.csv
+          file_path: data/preprocessed_current_data.csv
           prediction_column: left_or_not
           test_X_file_path: data/test_X.csv
           test_y_file_path: data/test_y.csv
@@ -126,7 +126,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: d36e796e324cf325ec1eb2680e776d36
+      md5: ba25bcac570d4cda420ad574242d57bf
       size: 32667
       isexec: true
   evaluate:
@@ -144,13 +144,13 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: d36e796e324cf325ec1eb2680e776d36
+      md5: ba25bcac570d4cda420ad574242d57bf
       size: 32667
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 512008ced25cf9d6201c196fff2a5fe4
-      size: 2404
+      md5: 229d3aee6420a5fd218433c313da8c5f
+      size: 2412
       isexec: true
     - path: src/evaluate.py
       hash: md5

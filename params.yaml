@@ -16,7 +16,7 @@ preprocess_script_file: src/preprocess.py
 preprocess:
   input_folder: *input_folder
   input_file: *input_file
-  output_file_path: &output_file_path "data/preprocessed_data.csv"     # The preprocessed file path
+  output_file_path: &output_file_path "data/preprocessed_current_data.csv"     # The preprocessed file path
   rename_map:                                                          # New names for the columns
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
