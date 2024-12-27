@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 2964ee536b420aa9be03b6b69174e596
-      size: 2159
+      md5: 512008ced25cf9d6201c196fff2a5fe4
+      size: 2404
       isexec: true
     - path: src/download.py
       hash: md5
@@ -36,13 +36,13 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 2964ee536b420aa9be03b6b69174e596
-      size: 2159
+      md5: 512008ced25cf9d6201c196fff2a5fe4
+      size: 2404
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 275b313bf83f158d1c50e0f54ffab49c
-      size: 4482
+      md5: a31e3e35ccb3bf1cfc79af075f18562c
+      size: 4645
       isexec: true
     params:
       params.yaml:
@@ -61,8 +61,8 @@ stages:
     outs:
     - path: data/onehot_name_dictionary.json
       hash: md5
-      md5: 99a179c956726e4d4335f2046caef4ba
-      size: 436
+      md5: 8155109279f471fe3577e6cf5839f0ca
+      size: 776
       isexec: true
     - path: data/preprocessed_data.csv
       hash: md5
@@ -79,8 +79,8 @@ stages:
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 2964ee536b420aa9be03b6b69174e596
-      size: 2159
+      md5: 512008ced25cf9d6201c196fff2a5fe4
+      size: 2404
       isexec: true
     - path: src/train.py
       hash: md5
@@ -126,7 +126,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 333f36963321ad7d709a034304bbd357
+      md5: d36e796e324cf325ec1eb2680e776d36
       size: 32667
       isexec: true
   evaluate:
@@ -144,18 +144,18 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 333f36963321ad7d709a034304bbd357
+      md5: d36e796e324cf325ec1eb2680e776d36
       size: 32667
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 2964ee536b420aa9be03b6b69174e596
-      size: 2159
+      md5: 512008ced25cf9d6201c196fff2a5fe4
+      size: 2404
       isexec: true
     - path: src/evaluate.py
       hash: md5
-      md5: 8fc11d44806a8cda31d0ca0eae7dd37d
-      size: 4074
+      md5: dde7301fa7617e92dc21769ec4237801
+      size: 4706
       isexec: true
     params:
       params.yaml:
@@ -165,6 +165,7 @@ stages:
           test_y_file_path: data/test_y.csv
           n_repeats: 10
           random_state: 42
+          onehot_name_dictionary_file_path: data/onehot_name_dictionary.json
   set_experiment_name:
     cmd: python src/set_experiment_name.py
     deps:
@@ -176,6 +177,6 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: f50364dc99abf5e456ee51a0fe74ffc9
+      md5: 43213907e4062e4050655029d2a3d579
       size: 43
       isexec: true

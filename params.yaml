@@ -24,7 +24,8 @@ preprocess:
     promotion_last_5years: promoted_last_5_years
     Department: department
   keep_duplicates: true                                                # Should one keep the duplicate rows or not
-  onehot_name_dictionary_file_path: "data/onehot_name_dictionary.json"
+  # The file with the dictionary for the column names one-hot transformation
+  onehot_name_dictionary_file_path: &onehot_name_dictionary_file_path "data/onehot_name_dictionary.json" 
 
 
 train_script_file: src/train.py
@@ -50,3 +51,5 @@ evaluate:
   test_y_file_path: *test_y_file_path
   n_repeats: 10
   random_state: 42
+  onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
+

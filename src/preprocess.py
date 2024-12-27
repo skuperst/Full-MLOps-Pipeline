@@ -58,17 +58,21 @@ def preprocess(**kwargs):
 
         mlflow.set_tag('mlflow.runName', "Preprocess: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
 
+        # Add graphs for all of the features
         for idx, col, t in Data.dtypes.reset_index().reset_index().values:
-            plt.figure(figsize=(7, 4))
+            plt.figure(figsize=(8, 6))
+            # All colors are from the same cmap
             color = plt.colormaps.get_cmap('Dark2')(idx / Data.columns.size)
             if t == 'object':
                 plt.bar(*zip(*Data[col].value_counts().reset_index().values), color=color)
+                # Rotate the labels, if there are too many of them
                 if Data[col].nunique() > 5:
                     plt.xticks(rotation = 60)
             else:
                 plt.hist(Data[col], bins = 100, color=color)
             plt.title(col, fontsize=16)
             plt.ylabel('Count')
+            plt.tight_layout()
             if set(Data[col]).issubset(set([0., 1.])):
                 # Remove all ticks and labels
                 plt.xticks([])  # Remove x-axis ticks
@@ -87,6 +91,10 @@ def preprocess(**kwargs):
     categorical_columns =  Data.select_dtypes(exclude=['int', 'float']).columns
     # Dictionary to keep track of the name changes after pd.get_dummies
     onehot_name_dictionary = dict()
+    # Add the non-categorical columns to the dictionary
+    for col in Data.select_dtypes(include=['int', 'float']).columns:
+        onehot_name_dictionary[col] = col
+    # Convert categorical data with the one-hot transform and add the categorical columns to the dictionary
     if len(categorical_columns) > 0:
         Data = pd.get_dummies(Data, categorical_columns, drop_first=False)
         for col_old in categorical_columns:

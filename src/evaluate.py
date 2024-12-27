@@ -3,7 +3,7 @@ import yaml
 import os
 import pickle
 import pandas as pd
-import numpy as np
+import json
 
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
 
@@ -22,6 +22,8 @@ from mlflow.models import infer_signature
 from datetime import datetime
 
 from utils.mlflow_utils import configure_mlflow
+
+import math
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -58,12 +60,22 @@ def evaluate(**kwargs):
     # Extract feature importances
     permutation_importance_output = permutation_importance(model, X_test, y_test, 
                                                             n_repeats=kwargs['n_repeats'], random_state=kwargs['random_state'])
+    # Insert the feature importance info into a dataframe
+    importances_df = pd.DataFrame({'Feature': X_test.columns, 'Importnace': permutation_importance_output.importances_mean, 
+                                    'STD':permutation_importance_output.importances_std})
     
-    # Sort the features from the most important to the least important
-    sorted_features, sorted_importances, sorted_std = zip(*sorted(zip(X_test.columns, 
-                                                                    permutation_importance_output.importances_mean, 
-                                                                    permutation_importance_output.importances_std
-                                                                    ), key=lambda x: x[1], reverse=False))
+    # Load the dictionary to restore the categorical column names before the one-hat was applied
+    onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, kwargs['onehot_name_dictionary_file_path'])))
+    # Use the dict to restore feature names (i.g. 'department_IT' back to 'department')
+    importances_df['Feature'] = importances_df['Feature'].map(onehot_column_name_dictionary)
+    # Group the features: sum for importnaces and volatilities
+    importances_df = importances_df.groupby('Feature').agg({'Importnace':'sum','STD': lambda s: math.sqrt((s**2).sum())}).reset_index()
+    # Sort by importance
+    importances_df = importances_df.sort_values('Importnace', ascending=True)
+
+    # Color map for the horizontal bars in the feature importance histogram
+    cmap = LinearSegmentedColormap.from_list('Green',["w", "g"], N=256)
+    color = cmap((MinMaxScaler().fit_transform(importances_df['Importnace'].values.reshape(-1, 1)).flatten() * 256).astype(int))
     
     with mlflow.start_run():
 
@@ -71,12 +83,9 @@ def evaluate(**kwargs):
 
         plt.figure(figsize=(12, 4))
 
-        # Set the color scheme
-        cmap = LinearSegmentedColormap.from_list('Green',["w", "g"], N=256)
-        color = cmap((MinMaxScaler().fit_transform(np.array(sorted_importances).reshape(-1, 1)).flatten() * 256).astype(int))
-
         # Plot horizontal bar chart
-        plt.barh(y=sorted_features, width=sorted_importances, xerr=sorted_std, capsize=4, align='center', color=color)
+        plt.barh(y=importances_df['Feature'], width=importances_df['Importnace'], xerr=importances_df['STD'], 
+                 capsize=4, align='center', color=color)
 
         plt.xlabel('Permutation Importance')
         plt.title('Feature Permutation Importance with Standard Deviation')
@@ -108,7 +117,6 @@ def evaluate(**kwargs):
         logging.info("The scores were logged.")
 
         del(model, X_test, y_test, y_pred)  
-
 
 # The evaluate.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['evaluate']

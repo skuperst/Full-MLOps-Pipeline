@@ -11,3 +11,5 @@ datetime
 seaborn
 matplotlib
 ipykernel
+ruamel.yaml
+evidently
