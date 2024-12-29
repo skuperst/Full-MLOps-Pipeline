@@ -1,7 +1,7 @@
 set_experiment_name_script_file: src/set_experiment_name.py
 
 # The path of the json file with the MLFlow experiment name
-mlflow_experiment_name_file_path: &mlflow_experiment_name_file_path "mlflow_experiment_name.yaml" 
+mlflow_experiment_name_file_path: "mlflow_experiment_name.yaml" 
 
 download_script_file: src/download.py
 
@@ -16,7 +16,8 @@ preprocess_script_file: src/preprocess.py
 preprocess:
   input_folder: *input_folder
   input_file: *input_file
-  output_file_path: &output_file_path "data/preprocessed_current_data.csv"     # The preprocessed file path
+  output_current_data_file_path: &output_current_data_file_path "data/preprocessed_current_data.csv"     # The preprocessed current data file path
+  output_future_data_file_path: &output_future_data_file_path "data/preprocessed_future_data.csv"       # The preprocessed future data file path
   rename_map:                                                          # New names for the columns
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
@@ -24,6 +25,15 @@ preprocess:
     promotion_last_5years: promoted_last_5_years
     Department: department
   keep_duplicates: true                                                # Should one keep the duplicate rows or not
+  # Name of the column to influence the split into the "future" and the "current" subsets ()
+  column_impacting_the_split: satisfaction_level
+  # What percentage of the preprocessed data will go to the 'future' subset
+  future_subset_size: 0.1
+  # The parameter controlling the randomness of the data split. If zero, the distribution is absolutely random. 
+  # For positive values, the 'future' dataset values in the column column_for_split will have higher values.
+  prob_coeff: 1.5
+  # Name of the column to control the split
+  time_period_column_name: &time_period_column_name 'time_period'
   # The file with the dictionary for the column names one-hot transformation
   onehot_name_dictionary_file_path: &onehot_name_dictionary_file_path "data/onehot_name_dictionary.json" 
 
@@ -31,13 +41,13 @@ preprocess:
 train_script_file: src/train.py
 
 train:
-  file_path: *output_file_path
+  file_path: *output_current_data_file_path
   prediction_column: *prediction_column
   test_X_file_path: &test_X_file_path "data/test_X.csv"                # The full path of the test dataset (features)
   test_y_file_path: &test_y_file_path "data/test_y.csv"                # The full path of the test dataset (targets)
   random_state: 42
   cross_validations: 3
-  max_depth: [2, 3, 3] # [1, 4, 1]                                     # Hyperparemeter ranges for the grid search
+  max_depth: [2, 3, 3] # [1, 4, 1]                                     # Hyperparameter ranges for the grid search
   min_samples_split: [8, 9, 1] #[4, 13, 4] 
   n_estimators: [40, 41, 10] #[20, 61, 10]
   learning_rate: [0.8, 1.1, 0.2] #[0.8, 1.3, 0.2]

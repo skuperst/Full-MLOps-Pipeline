@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 229d3aee6420a5fd218433c313da8c5f
-      size: 2412
+      md5: f2013fca6ef3a3415ee8f14534bddbac
+      size: 3169
       isexec: true
     - path: src/download.py
       hash: md5
@@ -34,22 +34,28 @@ stages:
       md5: 59d378061790edde7de565c9d02dffc7
       size: 566785
       isexec: true
+    - path: mlflow_experiment_name.yaml
+      hash: md5
+      md5: f693dd238bdd68a6627f071a66425f53
+      size: 43
+      isexec: true
     - path: params.yaml
       hash: md5
-      md5: 229d3aee6420a5fd218433c313da8c5f
-      size: 2412
+      md5: f2013fca6ef3a3415ee8f14534bddbac
+      size: 3169
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 67ef476104062de341c04cca0b74c28b
-      size: 4948
+      md5: c1fe58ae82f8b775918acbdc7794eb69
+      size: 7616
       isexec: true
     params:
       params.yaml:
         preprocess:
           input_folder: data
           input_file: raw_data.csv
-          output_file_path: data/preprocessed_current_data.csv
+          output_current_data_file_path: data/preprocessed_current_data.csv
+          output_future_data_file_path: data/preprocessed_future_data.csv
           rename_map:
             time_spend_company: time_spend_in_company
             Work_accident: had_work_accidents
@@ -57,6 +63,10 @@ stages:
             promotion_last_5years: promoted_last_5_years
             Department: department
           keep_duplicates: true
+          column_impacting_the_split: satisfaction_level
+          future_subset_size: 0.1
+          prob_coeff: 1.5
+          time_period_column_name: time_period
           onehot_name_dictionary_file_path: data/onehot_name_dictionary.json
     outs:
     - path: data/onehot_name_dictionary.json
@@ -66,21 +76,31 @@ stages:
       isexec: true
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 6f27b1770ba03d23c0f84f68a674adfb
-      size: 1496887
+      md5: 458f7e1131445f15d9a0f98bffe4e7df
+      size: 1347305
+      isexec: true
+    - path: data/preprocessed_future_data.csv
+      hash: md5
+      md5: ca3501bee98224a50031019496990028
+      size: 149955
       isexec: true
   train:
     cmd: python src/train.py
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 6f27b1770ba03d23c0f84f68a674adfb
-      size: 1496887
+      md5: 458f7e1131445f15d9a0f98bffe4e7df
+      size: 1347305
+      isexec: true
+    - path: mlflow_experiment_name.yaml
+      hash: md5
+      md5: f693dd238bdd68a6627f071a66425f53
+      size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 229d3aee6420a5fd218433c313da8c5f
-      size: 2412
+      md5: f2013fca6ef3a3415ee8f14534bddbac
+      size: 3169
       isexec: true
     - path: src/train.py
       hash: md5
@@ -116,41 +136,46 @@ stages:
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: fbb5a375c4815ec924c4f1ea87f67008
-      size: 293702
+      md5: 00b3c6d508685236506d90a3b14ad970
+      size: 264379
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: f17ddd6ddc87de718208a781d376e1ca
-      size: 6012
+      md5: e38f94ca520682d1529c29313758ba43
+      size: 5412
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: ba25bcac570d4cda420ad574242d57bf
-      size: 32667
+      md5: 325a0a6629b0d5651ab9d52ef9f49c1b
+      size: 32987
       isexec: true
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/test_X.csv
       hash: md5
-      md5: fbb5a375c4815ec924c4f1ea87f67008
-      size: 293702
+      md5: 00b3c6d508685236506d90a3b14ad970
+      size: 264379
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: f17ddd6ddc87de718208a781d376e1ca
-      size: 6012
+      md5: e38f94ca520682d1529c29313758ba43
+      size: 5412
+      isexec: true
+    - path: mlflow_experiment_name.yaml
+      hash: md5
+      md5: f693dd238bdd68a6627f071a66425f53
+      size: 43
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: ba25bcac570d4cda420ad574242d57bf
-      size: 32667
+      md5: 325a0a6629b0d5651ab9d52ef9f49c1b
+      size: 32987
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 229d3aee6420a5fd218433c313da8c5f
-      size: 2412
+      md5: f2013fca6ef3a3415ee8f14534bddbac
+      size: 3169
       isexec: true
     - path: src/evaluate.py
       hash: md5
@@ -177,6 +202,6 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 43213907e4062e4050655029d2a3d579
+      md5: f693dd238bdd68a6627f071a66425f53
       size: 43
       isexec: true
