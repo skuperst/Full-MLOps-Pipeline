@@ -31,16 +31,27 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def train(**kwargs):
 
+    output_column = kwargs['prediction_column']
+    file_path = kwargs['file_path']
+    random_state=kwargs['random_state']
+    test_X_file_path = kwargs['test_X_file_path']
+    test_y_file_path = kwargs['test_y_file_path']
+    max_depth = kwargs['max_depth']
+    min_samples_split = kwargs['min_samples_split']
+    n_estimators = kwargs['n_estimators']
+    learning_rate = kwargs['learning_rate']
+    model_file_path = kwargs['model_file_path']    
+    cross_validations = kwargs['cross_validations']     
+
     configure_mlflow()
 
     # Initiate logging
     logging.basicConfig(level=logging.INFO)
 
     # Download the data
-    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['file_path']))
+    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, file_path))
 
     # Split the prediction column from the dataframe 
-    output_column = kwargs['prediction_column'] 
     X = Data.drop(output_column, axis = 1) 
     y = Data[output_column]
 
@@ -49,13 +60,13 @@ def train(**kwargs):
     logging.info("Convert object type columns to categories.")
 
     logging.info("Splitting the data.")
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=kwargs['random_state'])
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state)
     del(X,y)
 
     # Save the test dataset
     try:
-        X_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_X_file_path']), index=False)
-        y_test.to_csv(os.path.join(curr_dir, os.pardir, kwargs['test_y_file_path']), index=False)
+        X_test.to_csv(os.path.join(curr_dir, os.pardir, test_X_file_path), index=False)
+        y_test.to_csv(os.path.join(curr_dir, os.pardir, test_y_file_path), index=False)
         logging.info("The test dataset CSV files were successfully saved.")
     except:
         logging.error("The test dataset CSV files were not saved!")
@@ -63,20 +74,19 @@ def train(**kwargs):
     del(X_test, y_test)
 
     # Define the classifier
-    abc = AdaBoostClassifier(DecisionTreeClassifier())
+    abc = AdaBoostClassifier(DecisionTreeClassifier(), algorithm="SAMME" )
     # Import the hyperparameters grid
-    grid_parameters = {'estimator__max_depth': list(range(*kwargs['max_depth'])),
-                       'estimator__min_samples_split': list(range(*kwargs['min_samples_split'])),
-                       'n_estimators': list(range(*kwargs['n_estimators'])),
-                       'learning_rate': list(np.arange(*kwargs['learning_rate']))}
+    grid_parameters = {'estimator__max_depth': list(range(*max_depth)),
+                       'estimator__min_samples_split': list(range(*min_samples_split)),
+                       'n_estimators': list(range(*n_estimators)),
+                       'learning_rate': list(np.arange(*learning_rate))}
 
     total_sets_of_parameters = math.prod([len(v) for v in grid_parameters.values()])
-    cv = kwargs['cross_validations']
     logging.info("Runnning the grid search with the total of {} sets of hyperparameters (may take up to {} seconds).".format(
-                                                                    total_sets_of_parameters, int(total_sets_of_parameters * 0.1 * cv)))
+                                                                    total_sets_of_parameters, int(total_sets_of_parameters * 0.1 * cross_validations)))
     # Define the scores (accuracy is still the major one, see below)
     scoring = {'Accuracy': 'accuracy', 'F1-score': 'f1', 'Recall':'recall', 'Precision':'precision'}
-    grid_search = GridSearchCV(abc, grid_parameters, scoring=scoring, refit='Accuracy', n_jobs=-1, cv=cv, verbose=0)
+    grid_search = GridSearchCV(abc, grid_parameters, scoring=scoring, refit='Accuracy', n_jobs=-1, cv=cross_validations, verbose=0)
     start_time = datetime.now()
     grid_search.fit(X_train,y_train)
     end_time = datetime.now()
@@ -86,10 +96,10 @@ def train(**kwargs):
     best_model = grid_search.best_estimator_
     
     # Create the directory to save the model
-    os.makedirs(os.path.join(curr_dir, os.pardir, os.path.dirname(kwargs['model_file_path'])), exist_ok=True)
+    os.makedirs(os.path.join(curr_dir, os.pardir, os.path.dirname(model_file_path)), exist_ok=True)
 
     # Save the model
-    pickle.dump(best_model,open(kwargs['model_file_path'],'wb'))
+    pickle.dump(best_model,open(model_file_path,'wb'))
     logging.info("The highest accuracy model was saved locally.")    
 
     # Create an input example

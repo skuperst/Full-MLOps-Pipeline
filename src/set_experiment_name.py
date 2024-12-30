@@ -1,11 +1,14 @@
 import logging
+# Initiate logging
+logging.basicConfig(level=logging.INFO)
+logging.info('Loading Python libraries ...')
+
 import os
 from datetime import datetime
 from ruamel.yaml import YAML
 import sys
 
-# Initiate logging
-logging.basicConfig(level=logging.INFO)
+logging.info('Done!')
 
 # Initialize YAML object
 yaml = YAML()

@@ -1,11 +1,15 @@
 import logging
+# Initiate logging
+logging.basicConfig(level=logging.INFO)
+logging.info('Loading Python libraries ...')
+
 import yaml
 import os
 import sys
 import contextlib
 import io
 
-logging.basicConfig(level=logging.INFO)
+logging.info('Done!')
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))

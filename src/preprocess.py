@@ -22,11 +22,24 @@ def preprocess(**kwargs):
 
     configure_mlflow()
     
+    input_folder = kwargs['input_folder']
+    input_file = kwargs['input_file']
+    keep_duplicates = kwargs['keep_duplicates']
+    rename_map = kwargs['rename_map']
+    future_subset_size = kwargs["future_subset_size"] 
+    prob_coeff = kwargs['prob_coeff']
+    column_impacting_the_split = kwargs["column_impacting_the_split"]
+    time_period_column_name = kwargs["time_period_column_name"]
+    onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
+    output_past_data_file_path = kwargs['output_past_data_file_path']
+    output_future_data_file_path = kwargs['output_future_data_file_path']
+
+
     # Initiate logging
     logging.basicConfig(level=logging.INFO)
 
     # Download the input file into a dataframe
-    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['input_folder'], kwargs['input_file']))
+    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, input_folder, input_file))
     logging.info("The data has {} rows and {} columns".format(*Data.shape))
 
     # Remove all rows with NaNs (if any)
@@ -39,29 +52,29 @@ def preprocess(**kwargs):
         logging.info("No missing data points were found.")
 
     # Drop the duplicates (or not)
-    if kwargs['keep_duplicates'] == False:
+    if  keep_duplicates == False:
         Data = Data[~Data.duplicated(list(Data.columns))]
         logging.info("Duplicates removed (if any).")
 
     # Rename the columns
     try:
-        Data.rename(columns=kwargs['rename_map'], inplace=True)
+        Data.rename(columns=rename_map, inplace=True)
         logging.info("Columns renamed.")
     except:
         logging.error("Name mismatch in the column renaming dictionary!")
         sys.exit(1)
 
-    # Split the file into the 'current' and 'future' parts. This will be used by EvidentlyAI later on
+    # Split the file into the 'past and 'future' parts. This will be used by EvidentlyAI later on
     dataset_size = Data.shape[0]
-    # Probabilities used to split the data set to the 'current' and the 'future' subsets
+    # Probabilities used to split the data set to the 'past and the 'future' subsets
     # For prob_coeff=0 the probabilities to fall into either dataset are the same
-    probabilities = np.exp(kwargs['prob_coeff'] * ((np.arange(dataset_size, dtype=float) / (dataset_size - 1))))
+    probabilities = np.exp(prob_coeff * ((np.arange(dataset_size, dtype=float) / (dataset_size - 1))))
     # Normalization
     probabilities /= probabilities.sum()
-    sampled_indices = np.random.choice(Data.sort_values(kwargs["column_impacting_the_split"], ascending=True).index, 
-                                       size=int(kwargs["future_subset_size"] * dataset_size), p=probabilities, replace=False)
+    sampled_indices = np.random.choice(Data.sort_values(column_impacting_the_split, ascending=True).index, 
+                                       size=int(future_subset_size * dataset_size), p=probabilities, replace=False)
     # Add the split column values
-    Data[kwargs["time_period_column_name"]] = pd.Series(Data.index.isin(sampled_indices)).map({True: 'future', False: 'current'})
+    Data[time_period_column_name] = pd.Series(Data.index.isin(sampled_indices)).map({True: 'future', False: 'past'})
     logging.info("Dataset split into the current and the future subsets, {} and {} in size respectively.".format(dataset_size, sampled_indices.size))
 
     # Start an MLflow run
@@ -70,13 +83,13 @@ def preprocess(**kwargs):
         mlflow.set_tag('mlflow.runName', "Preprocess: {}".format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
 
         # Add graphs for all of the features
-        for idx, col, t in Data.drop(kwargs["time_period_column_name"], axis=1).dtypes.reset_index().reset_index().values:
+        for idx, col, t in Data.drop(time_period_column_name, axis=1).dtypes.reset_index().reset_index().values:
             fig, axs = plt.subplots(2, 1, figsize=(12, 6))
             # All colors are from the same cmap
             color = plt.colormaps.get_cmap('Dark2')(idx / Data.columns.size)
-            for i, tp in zip([0,1], ['current','future']):
+            for i, tp in zip([0,1], ['past','future']):
 
-                x, y = zip(*Data[Data[kwargs['time_period_column_name']]==tp][col].value_counts().sort_index().reset_index().values)
+                x, y = zip(*Data[Data[time_period_column_name]==tp][col].value_counts().sort_index().reset_index().values)
 
                 # Calculate optimal bar width
                 total_space = 1.0  # Total space allocated for one bar + one gap
@@ -87,7 +100,7 @@ def preprocess(**kwargs):
 
                 # Adjust x-axis limits to ensure bars are fully visible
                 if t!='object':
-                    if tp=='current':
+                    if tp=='past':
                         x_lim_min = x[0] - bar_width / 2
                         x_lim_max = x[-1] + bar_width / 2
                     axs[i].set_xlim(x_lim_min, x_lim_max)
@@ -113,7 +126,7 @@ def preprocess(**kwargs):
 
     # One-hot transformation
     # All string columns, except the current/future column
-    categorical_columns =  Data.drop(kwargs["time_period_column_name"], axis=1).select_dtypes(exclude=['int', 'float']).columns
+    categorical_columns =  Data.drop(time_period_column_name, axis=1).select_dtypes(exclude=['int', 'float']).columns
     # All numerical columns
     non_categorical_columns =  Data.select_dtypes(include=['int', 'float']).columns
     # Dictionary to keep track of the name changes after pd.get_dummies
@@ -134,26 +147,26 @@ def preprocess(**kwargs):
 
     # Save the names dictionary which relates the columnns before and after pd.get_dummies
     try:
-        with open(os.path.join(curr_dir, os.pardir, kwargs['onehot_name_dictionary_file_path']), 'w') as json_file:
+        with open(os.path.join(curr_dir, os.pardir, onehot_name_dictionary_file_path), 'w') as json_file:
             json.dump(onehot_name_dictionary, json_file)
         logging.info("The column names dictionary was successfully saved.")
     except:
         logging.error("The column names dictionary was not saved!")
         sys.exit(1)
 
-    # Save the 'current' preprocessed file
+    # Save the 'past' preprocessed file
     try:
-        Data[Data[kwargs["time_period_column_name"]]=='current'].drop(kwargs["time_period_column_name"], axis=1).to_csv(os.path.join(curr_dir, 
-                                                                                            os.pardir, kwargs['output_current_data_file_path']), index=False)
-        logging.info("The preprocessed current data CSV file was successfully saved.")
+        Data.query("{}=='past'".format(time_period_column_name)).drop(time_period_column_name, axis=1).to_csv(os.path.join(curr_dir, 
+                                                                                            os.pardir, output_past_data_file_path), index=False)
+        logging.info("The preprocessed past data CSV file was successfully saved.")
     except:
-        logging.error("The preprocessed current data CSV file was not saved!")
+        logging.error("The preprocessed past data CSV file was not saved!")
         sys.exit(1)
 
     # Save the 'future' preprocessed file
     try:
-        Data[Data[kwargs["time_period_column_name"]]=='future'].drop(kwargs["time_period_column_name"], axis=1).to_csv(os.path.join(curr_dir, 
-                                                                                            os.pardir, kwargs['output_future_data_file_path']), index=False)
+        Data.query("{}=='future'".format(time_period_column_name)).drop(time_period_column_name, axis=1).to_csv(os.path.join(curr_dir, 
+                                                                                            os.pardir, output_future_data_file_path), index=False)
         logging.info("The preprocessed future data CSV file was successfully saved.")
     except:
         logging.error("The preprocessed future data CSV file was not saved!")

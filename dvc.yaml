@@ -27,7 +27,7 @@ stages:
     params:
     - preprocess 
     outs:
-    - ${preprocess.output_current_data_file_path}
+    - ${preprocess.output_past_data_file_path}
     - ${preprocess.output_future_data_file_path}
     - ${preprocess.onehot_name_dictionary_file_path}
 
@@ -37,7 +37,7 @@ stages:
     - params.yaml
     - ${mlflow_experiment_name_file_path}
     - ${train_script_file}
-    - ${preprocess.output_current_data_file_path}     
+    - ${preprocess.output_past_data_file_path}     
     params:
     - train 
     outs:
