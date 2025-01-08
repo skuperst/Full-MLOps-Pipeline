@@ -1,3 +1,4 @@
 .env
 my_env/
 /mlflow_experiment_name.yaml
+/evidently_htmls

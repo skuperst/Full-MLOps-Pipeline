@@ -67,3 +67,5 @@ stages:
     - ${preprocess.output_current_data_file_path}
     params:
     - evidentlyai
+    outs:
+    - ${evidentlyai.evidently_htmls_folder_name}

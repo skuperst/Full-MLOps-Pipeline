@@ -63,8 +63,14 @@ def evidentlyai(**kwargs):
     except:
         logging.error("The connection to the EvidentlyAI API could not be established!")
         sys.exit(1)
-        
-    
+            
+    # File path to save the html version of the report
+    html_folder_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name)
+    # Ensure the EvidentlyAI html folder exists
+    if not os.path.exists(html_folder_path):
+        os.makedirs(html_folder_path)
+        logging.info("Created the html files folder.")
+
     # Load the train model
     model = pickle.load(open(model_file_path,'rb'))
 
@@ -113,10 +119,9 @@ def evidentlyai(**kwargs):
             except:
                 logging.error("Failed to send the {} report to the EvidentlyAI cloud project!".format(metric_name))
                 sys.exit(1)
-
+                
             # File path to save the html version of the report
             html_file_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, '{}.html'.format(metric_name))
-
             # Save this report
             report.save_html(html_file_path)
         

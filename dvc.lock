@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 42500cf61ffc5fb0c75eb582e4c63b4d
-      size: 3597
+      md5: 1d541862eeb1e39203f013d6c8a11cd5
+      size: 3715
       isexec: true
     - path: src/download.py
       hash: md5
@@ -36,13 +36,13 @@ stages:
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 92c8f831bc50fe6f080ccd0360a4ea12
+      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
       size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 42500cf61ffc5fb0c75eb582e4c63b4d
-      size: 3597
+      md5: 1d541862eeb1e39203f013d6c8a11cd5
+      size: 3715
       isexec: true
     - path: src/preprocess.py
       hash: md5
@@ -76,31 +76,31 @@ stages:
       isexec: true
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: aec9386241ff24f952a54e076025ffca
-      size: 149924
+      md5: 754f3b0daec36ffba24ed43033340013
+      size: 149916
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 008046530f015e915f89f394e02ead91
-      size: 1347336
+      md5: e406e92d4891110e0a099f41b20da534
+      size: 1347344
       isexec: true
   train:
     cmd: python src/train.py
     deps:
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 008046530f015e915f89f394e02ead91
-      size: 1347336
+      md5: e406e92d4891110e0a099f41b20da534
+      size: 1347344
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 92c8f831bc50fe6f080ccd0360a4ea12
+      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
       size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 42500cf61ffc5fb0c75eb582e4c63b4d
-      size: 3597
+      md5: 1d541862eeb1e39203f013d6c8a11cd5
+      size: 3715
       isexec: true
     - path: src/train.py
       hash: md5
@@ -136,46 +136,46 @@ stages:
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: fe1369b5a95bd0b9ce9e6cb11b47bbd5
-      size: 264369
+      md5: a46ad07485fe5d684e84a635ad0d7a4e
+      size: 264325
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 257670cb126e50d9f9cb68d9eee89123
+      md5: 1ec436b23e8697faa9ea63e4e392570e
       size: 5412
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 9a75510bb1f46f98d4bd61c490469c24
-      size: 32662
+      md5: 8cd31a7a0ec5344a37d1d8f2b0b94fd1
+      size: 32182
       isexec: true
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 008046530f015e915f89f394e02ead91
-      size: 1347336
+      md5: e406e92d4891110e0a099f41b20da534
+      size: 1347344
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 257670cb126e50d9f9cb68d9eee89123
+      md5: 1ec436b23e8697faa9ea63e4e392570e
       size: 5412
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 92c8f831bc50fe6f080ccd0360a4ea12
+      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
       size: 43
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 9a75510bb1f46f98d4bd61c490469c24
-      size: 32662
+      md5: 8cd31a7a0ec5344a37d1d8f2b0b94fd1
+      size: 32182
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 42500cf61ffc5fb0c75eb582e4c63b4d
-      size: 3597
+      md5: 1d541862eeb1e39203f013d6c8a11cd5
+      size: 3715
       isexec: true
     - path: src/evaluate.py
       hash: md5
@@ -202,7 +202,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 92c8f831bc50fe6f080ccd0360a4ea12
+      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
       size: 43
       isexec: true
   evidentlyai:
@@ -210,34 +210,43 @@ stages:
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: d4f653292538b9868b4dac9a941b1990
-      size: 149930
+      md5: 754f3b0daec36ffba24ed43033340013
+      size: 149916
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 634f348f08acd03a5ba3207c1cc154cc
-      size: 1347330
+      md5: e406e92d4891110e0a099f41b20da534
+      size: 1347344
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: cedf90b3b954206309a6166258797926
+      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
       size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 0b32aeb0948da00e2c9e530f102cd404
-      size: 3490
+      md5: 1d541862eeb1e39203f013d6c8a11cd5
+      size: 3715
       isexec: true
     - path: src/evidentlyai.py
       hash: md5
-      md5: e6020a583c419d8c3c592504511fec36
-      size: 5844
+      md5: d0598025c6aaa99555661136241f5954
+      size: 6551
       isexec: true
     params:
       params.yaml:
         evidentlyai:
+          evidentlyai_url: https://app.evidently.cloud
+          evidentlyai_project_name: Human Resources
+          evidentlyai_project_description: Use AdaBoost to predict who left the company
           reference_data_file_path: data/preprocessed_reference_data.csv
           current_data_file_path: data/preprocessed_current_data.csv
           model_file_path: models/model.pkl
           prediction_column: left_or_not
           evidently_htmls_folder_name: evidently_htmls
+    outs:
+    - path: evidently_htmls
+      hash: md5
+      md5: 2e785addfa84d1297bb589894d78c8c8.dir
+      size: 9945530
+      nfiles: 4
