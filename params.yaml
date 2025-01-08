@@ -16,8 +16,8 @@ preprocess_script_file: src/preprocess.py
 preprocess:
   input_folder: *input_folder
   input_file: *input_file
-  output_past_data_file_path: &output_past_data_file_path "data/preprocessed_past_data.csv"     # The preprocessed past data file path
-  output_future_data_file_path: &output_future_data_file_path "data/preprocessed_future_data.csv"       # The preprocessed future data file path
+  output_reference_data_file_path: &output_reference_data_file_path "data/preprocessed_reference_data.csv"     # The preprocessed reference data file path
+  output_current_data_file_path: &output_current_data_file_path "data/preprocessed_current_data.csv"       # The preprocessed current data file path
   rename_map:                                                          # New names for the columns
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
@@ -25,12 +25,12 @@ preprocess:
     promotion_last_5years: promoted_last_5_years
     Department: department
   keep_duplicates: true                                                # Should one keep the duplicate rows or not
-  # Name of the column to influence the split into the "future" and the "past" subsets ()
+  # Name of the column to influence the split into the "current" and the "reference" subsets ()
   column_impacting_the_split: satisfaction_level
-  # What percentage of the preprocessed data will go to the 'future' subset
-  future_subset_size: 0.1
+  # What percentage of the preprocessed data will go to the 'current' subset
+  current_subset_size: 0.1
   # The parameter controlling the randomness of the data split. If zero, the distribution is absolutely random. 
-  # For positive values, the 'future' dataset values in the column column_for_split will have higher values.
+  # For positive values, the 'current' dataset values in the column column_for_split will have higher values.
   prob_coeff: 1.5
   # Name of the column to control the split
   time_period_column_name: &time_period_column_name 'time_period'
@@ -41,7 +41,7 @@ preprocess:
 train_script_file: src/train.py
 
 train:
-  file_path: *output_past_data_file_path
+  file_path: *output_reference_data_file_path
   prediction_column: *prediction_column
   test_X_file_path: &test_X_file_path "data/test_X.csv"                # The full path of the test dataset (features)
   test_y_file_path: &test_y_file_path "data/test_y.csv"                # The full path of the test dataset (targets)
@@ -63,7 +63,17 @@ evaluate:
   random_state: 42
   onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
 
-evidentlyai:
-  past_data_file_path: *output_past_data_file_path
-  future_data_file_path: *output_future_data_file_path
+evidentlyai_script_file: src/evidentlyai.py
 
+evidentlyai:
+  evidentlyai_url: "https://app.evidently.cloud"
+  evidentlyai_project_name: "Human Resources"
+  evidentlyai_project_description: "Use AdaBoost to predict who left the company"
+  reference_data_file_path: *output_reference_data_file_path
+  current_data_file_path: *output_current_data_file_path
+  model_file_path: *model_file_path
+  prediction_column: *prediction_column
+  evidently_htmls_folder_name: "evidently_htmls"
+
+flask_api:
+  model_file_path: *model_file_path

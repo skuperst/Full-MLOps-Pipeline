@@ -27,8 +27,8 @@ stages:
     params:
     - preprocess 
     outs:
-    - ${preprocess.output_past_data_file_path}
-    - ${preprocess.output_future_data_file_path}
+    - ${preprocess.output_reference_data_file_path}
+    - ${preprocess.output_current_data_file_path}
     - ${preprocess.onehot_name_dictionary_file_path}
 
   train:
@@ -37,7 +37,7 @@ stages:
     - params.yaml
     - ${mlflow_experiment_name_file_path}
     - ${train_script_file}
-    - ${preprocess.output_past_data_file_path}     
+    - ${preprocess.output_reference_data_file_path}     
     params:
     - train 
     outs:
@@ -51,8 +51,19 @@ stages:
     - params.yaml
     - ${mlflow_experiment_name_file_path}
     - ${evaluate_script_file}
-    - ${train.test_X_file_path}
+    - ${preprocess.output_reference_data_file_path}    
     - ${train.test_y_file_path}    
     - ${train.model_file_path}
     params:
-    - evaluate 
+    - evaluate
+
+  evidentlyai:
+    cmd: python ${evidentlyai_script_file}
+    deps:
+    - params.yaml
+    - ${mlflow_experiment_name_file_path}
+    - ${evidentlyai_script_file}
+    - ${preprocess.output_reference_data_file_path}
+    - ${preprocess.output_current_data_file_path}
+    params:
+    - evidentlyai

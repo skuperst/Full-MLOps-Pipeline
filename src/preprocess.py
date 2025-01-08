@@ -1,4 +1,8 @@
 import logging
+# Initiate logging
+logging.basicConfig(level=logging.INFO)
+logging.info('Loading Python libraries ...')
+
 import yaml
 import os
 import sys
@@ -15,6 +19,8 @@ import json
 
 from utils.mlflow_utils import configure_mlflow
 
+logging.info('Done!')
+
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -26,13 +32,13 @@ def preprocess(**kwargs):
     input_file = kwargs['input_file']
     keep_duplicates = kwargs['keep_duplicates']
     rename_map = kwargs['rename_map']
-    future_subset_size = kwargs["future_subset_size"] 
+    current_subset_size = kwargs["current_subset_size"] 
     prob_coeff = kwargs['prob_coeff']
     column_impacting_the_split = kwargs["column_impacting_the_split"]
     time_period_column_name = kwargs["time_period_column_name"]
     onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
-    output_past_data_file_path = kwargs['output_past_data_file_path']
-    output_future_data_file_path = kwargs['output_future_data_file_path']
+    output_reference_data_file_path = kwargs['output_reference_data_file_path']
+    output_current_data_file_path = kwargs['output_current_data_file_path']
 
 
     # Initiate logging
@@ -64,18 +70,18 @@ def preprocess(**kwargs):
         logging.error("Name mismatch in the column renaming dictionary!")
         sys.exit(1)
 
-    # Split the file into the 'past and 'future' parts. This will be used by EvidentlyAI later on
+    # Split the file into the 'reference and 'current' parts. This will be used by EvidentlyAI later on
     dataset_size = Data.shape[0]
-    # Probabilities used to split the data set to the 'past and the 'future' subsets
+    # Probabilities used to split the data set to the 'reference and the 'current' subsets
     # For prob_coeff=0 the probabilities to fall into either dataset are the same
     probabilities = np.exp(prob_coeff * ((np.arange(dataset_size, dtype=float) / (dataset_size - 1))))
     # Normalization
     probabilities /= probabilities.sum()
     sampled_indices = np.random.choice(Data.sort_values(column_impacting_the_split, ascending=True).index, 
-                                       size=int(future_subset_size * dataset_size), p=probabilities, replace=False)
+                                       size=int(current_subset_size * dataset_size), p=probabilities, replace=False)
     # Add the split column values
-    Data[time_period_column_name] = pd.Series(Data.index.isin(sampled_indices)).map({True: 'future', False: 'past'})
-    logging.info("Dataset split into the current and the future subsets, {} and {} in size respectively.".format(dataset_size, sampled_indices.size))
+    Data[time_period_column_name] = pd.Series(Data.index.isin(sampled_indices)).map({True: 'current', False: 'reference'})
+    logging.info("Dataset split into the current and the current subsets, {} and {} in size respectively.".format(dataset_size, sampled_indices.size))
 
     # Start an MLflow run
     with mlflow.start_run():
@@ -87,7 +93,7 @@ def preprocess(**kwargs):
             fig, axs = plt.subplots(2, 1, figsize=(12, 6))
             # All colors are from the same cmap
             color = plt.colormaps.get_cmap('Dark2')(idx / Data.columns.size)
-            for i, tp in zip([0,1], ['past','future']):
+            for i, tp in zip([0,1], ['reference','current']):
 
                 x, y = zip(*Data[Data[time_period_column_name]==tp][col].value_counts().sort_index().reset_index().values)
 
@@ -100,7 +106,7 @@ def preprocess(**kwargs):
 
                 # Adjust x-axis limits to ensure bars are fully visible
                 if t!='object':
-                    if tp=='past':
+                    if tp=='reference':
                         x_lim_min = x[0] - bar_width / 2
                         x_lim_max = x[-1] + bar_width / 2
                     axs[i].set_xlim(x_lim_min, x_lim_max)
@@ -125,7 +131,7 @@ def preprocess(**kwargs):
     
 
     # One-hot transformation
-    # All string columns, except the current/future column
+    # All string columns, except the current/current column
     categorical_columns =  Data.drop(time_period_column_name, axis=1).select_dtypes(exclude=['int', 'float']).columns
     # All numerical columns
     non_categorical_columns =  Data.select_dtypes(include=['int', 'float']).columns
@@ -154,22 +160,22 @@ def preprocess(**kwargs):
         logging.error("The column names dictionary was not saved!")
         sys.exit(1)
 
-    # Save the 'past' preprocessed file
+    # Save the 'reference' preprocessed file
     try:
-        Data.query("{}=='past'".format(time_period_column_name)).drop(time_period_column_name, axis=1).to_csv(os.path.join(curr_dir, 
-                                                                                            os.pardir, output_past_data_file_path), index=False)
-        logging.info("The preprocessed past data CSV file was successfully saved.")
+        Data.query("{}=='reference'".format(time_period_column_name)).drop(time_period_column_name, axis=1).to_csv(os.path.join(curr_dir, 
+                                                                                            os.pardir, output_reference_data_file_path), index=False)
+        logging.info("The preprocessed reference data CSV file was successfully saved.")
     except:
-        logging.error("The preprocessed past data CSV file was not saved!")
+        logging.error("The preprocessed reference data CSV file was not saved!")
         sys.exit(1)
 
-    # Save the 'future' preprocessed file
+    # Save the 'current' preprocessed file
     try:
-        Data.query("{}=='future'".format(time_period_column_name)).drop(time_period_column_name, axis=1).to_csv(os.path.join(curr_dir, 
-                                                                                            os.pardir, output_future_data_file_path), index=False)
-        logging.info("The preprocessed future data CSV file was successfully saved.")
+        Data.query("{}=='current'".format(time_period_column_name)).drop(time_period_column_name, axis=1).to_csv(os.path.join(curr_dir, 
+                                                                                            os.pardir, output_current_data_file_path), index=False)
+        logging.info("The preprocessed current data CSV file was successfully saved.")
     except:
-        logging.error("The preprocessed future data CSV file was not saved!")
+        logging.error("The preprocessed current data CSV file was not saved!")
         sys.exit(1)
 
     del(Data)

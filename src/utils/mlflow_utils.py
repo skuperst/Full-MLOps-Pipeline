@@ -21,7 +21,7 @@ def configure_mlflow():
     experiment_name = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, os.pardir, experiment_name_file_path)))['exp_name']
 
     # Load the .env file
-    load_dotenv()
+    load_dotenv(override=True)
     # Access the variables
     mlflow_uri = os.getenv("MLFLOW_TRACKING_URI")
     user_name = os.getenv("USER_NAME")

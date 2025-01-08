@@ -1,4 +1,9 @@
 import logging
+# Initiate logging
+logging.basicConfig(level=logging.INFO)
+
+logging.info('Loading Python libraries ...')
+
 import yaml
 import os
 import pickle
@@ -17,7 +22,6 @@ from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import MinMaxScaler
 
 import mlflow
-from mlflow.models import infer_signature
 
 from datetime import datetime
 
@@ -25,22 +29,28 @@ from utils.mlflow_utils import configure_mlflow
 
 import math
 
+logging.info('Done!')
+
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def evaluate(**kwargs):
 
     configure_mlflow()
-
-    # Initiate logging
-    logging.basicConfig(level=logging.INFO)
     
+    test_X_file_path = kwargs['test_X_file_path']
+    test_y_file_path= kwargs['test_y_file_path']
+    model_file_path = kwargs['model_file_path']
+    n_repeats = kwargs['n_repeats']
+    random_state = kwargs['random_state']
+    onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
+
     # Load the preprocessed test data
-    X_test = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['test_X_file_path']))
-    y_test = pd.read_csv(os.path.join(curr_dir, os.pardir, kwargs['test_y_file_path']))
+    X_test = pd.read_csv(os.path.join(curr_dir, os.pardir, test_X_file_path))
+    y_test = pd.read_csv(os.path.join(curr_dir, os.pardir, test_y_file_path))
 
     # Load the train model
-    model = pickle.load(open(kwargs['model_file_path'],'rb'))
+    model = pickle.load(open(model_file_path,'rb'))
 
     # Calculate the test set predictions
     y_pred = model.predict(X_test)
@@ -59,13 +69,13 @@ def evaluate(**kwargs):
 
     # Extract feature importances
     permutation_importance_output = permutation_importance(model, X_test, y_test, 
-                                                            n_repeats=kwargs['n_repeats'], random_state=kwargs['random_state'])
+                                                            n_repeats=n_repeats, random_state=random_state)
     # Insert the feature importance info into a dataframe
     importances_df = pd.DataFrame({'Feature': X_test.columns, 'Importnace': permutation_importance_output.importances_mean, 
                                     'STD':permutation_importance_output.importances_std})
     
     # Load the dictionary to restore the categorical column names before the one-hat was applied
-    onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, kwargs['onehot_name_dictionary_file_path'])))
+    onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, onehot_name_dictionary_file_path)))
     # Use the dict to restore feature names (i.g. 'department_IT' back to 'department')
     importances_df['Feature'] = importances_df['Feature'].map(onehot_column_name_dictionary)
     # Group the features: sum for importnaces and volatilities

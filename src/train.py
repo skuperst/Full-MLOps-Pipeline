@@ -1,4 +1,8 @@
 import logging
+# Initiate logging
+logging.basicConfig(level=logging.INFO)
+logging.info('Loading Python libraries ...')
+
 import yaml
 import os
 import sys
@@ -26,6 +30,8 @@ from  matplotlib.colors import LinearSegmentedColormap
 
 from utils.mlflow_utils import configure_mlflow
 
+logging.info('Done!')
+
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,9 +50,6 @@ def train(**kwargs):
     cross_validations = kwargs['cross_validations']     
 
     configure_mlflow()
-
-    # Initiate logging
-    logging.basicConfig(level=logging.INFO)
 
     # Download the data
     Data = pd.read_csv(os.path.join(curr_dir, os.pardir, file_path))
