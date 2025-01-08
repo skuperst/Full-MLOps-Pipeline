@@ -29,6 +29,7 @@ stages:
     outs:
     - ${preprocess.output_reference_data_file_path}
     - ${preprocess.output_current_data_file_path}
+    - ${preprocess.flask_dict_file_path}
     - ${preprocess.onehot_name_dictionary_file_path}
 
   train:

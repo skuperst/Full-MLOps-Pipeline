@@ -34,9 +34,10 @@ preprocess:
   prob_coeff: 1.5
   # Name of the column to control the split
   time_period_column_name: &time_period_column_name 'time_period'
+   # The file with the dictionary used later on by Flask API to build the html template  
+  flask_dict_file_path: &flask_dict_file_path "data/flask_dictionary.json"
   # The file with the dictionary for the column names one-hot transformation
   onehot_name_dictionary_file_path: &onehot_name_dictionary_file_path "data/onehot_name_dictionary.json" 
-
 
 train_script_file: src/train.py
 

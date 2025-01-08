@@ -38,8 +38,8 @@ def preprocess(**kwargs):
     time_period_column_name = kwargs["time_period_column_name"]
     onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
     output_reference_data_file_path = kwargs['output_reference_data_file_path']
+    flask_dict_file_path = kwargs['flask_dict_file_path']
     output_current_data_file_path = kwargs['output_current_data_file_path']
-
 
     # Initiate logging
     logging.basicConfig(level=logging.INFO)
@@ -69,6 +69,23 @@ def preprocess(**kwargs):
     except:
         logging.error("Name mismatch in the column renaming dictionary!")
         sys.exit(1)
+
+    # Create and save a dictionary for the Flask API html template
+
+    try:
+        flask_dict = dict([(col,dict({'label': col.capitalize().replace('_', ' '),
+                 'type': 'dropdown' if Data[col].nunique()<=10 else 'range',
+                 'options': sorted(Data[col].unique().tolist()) if Data[col].nunique()<=10  else [],
+                 'range': None if Data[col].nunique()<=10  else dict({'min': int(Data[col].min()), 'max': int(Data[col].max())}),
+                 'precision': int(Data[col].map(lambda x: len(str(x).split('.')[1])).max()) if t=='float' else None
+                })) for col, t in dict(Data.dtypes).items()])
+        with open(os.path.join(curr_dir, os.pardir, flask_dict_file_path), 'w') as json_file:
+            json.dump(flask_dict, json_file)
+        logging.info("The column data used by Flask API was successfully created and saved.")
+    except:
+        logging.error("The column data used by Flask API was not saved!")
+        sys.exit(1)
+
 
     # Split the file into the 'reference and 'current' parts. This will be used by EvidentlyAI later on
     dataset_size = Data.shape[0]
