@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <title>Predicting Employee Turnover</title>
+
+</head>
+<body>
+    <!-- Title -->
+    <h1>Predicting Employee Turnover at Sailsfort Motors</h1>
+
+    <!-- Form Container (Form Section on Left, Output Section on Right) -->
+    <div class="form-container">
+        <!-- Form Section -->
+        <div class="form-section">
+            <form method="POST">
+                {% for key, field in flask_dict.items() %}
+                    <div>
+                        <!-- Label -->
+                        <label for="{{ key }}">{{ field['label'] }}: </label>
+
+                        <!-- Numeric Input -->
+                        {% if field['type_of_input'] == "manual" %}
+
+                            <input
+                                type="number" 
+                                id="{{ key }}" 
+                                name="{{ key }}"
+                                min="{{ field['range']['min'] }}"
+                                max="{{ field['range']['max'] }}"
+                                step="{{ field['precision'] }}"
+                                value="{{ selected_values[key] if selected_values[key] is not none else '' }}"
+                                placeholder="From {{ field['range']['min'] }} to {{ field['range']['max'] }}" 
+                                required
+                            >
+
+                        <!-- Dropdown Menu -->
+                        {% elif field['type_of_input'] == "dropdown" %}
+                            <select type="text" id="{{ key }}" name="{{ key }}" required>
+                            <option value="" {% if selected_values[key] is none %}selected{% endif %}>Select an option</option>
+                            {% for option in field['options'] %}
+                                <option value="{{ option }}" {% if option|string == selected_values[key]|string %}selected{% endif %}>{{ option }}</option>
+                            {% endfor %}
+                            </select>
+                        {% endif %}
+                    </div>
+                {% endfor %}               
+                <div class="buttons-container">
+                    <!-- Submit Button -->
+                    <button type="submit" name="submit">Submit</button>
+                    <button type="submit" name="reset" formnovalidate>Reset</button>
+                </div>
+            </form>   
+        </div>
+
+        <!-- Output Section (Right Side) -->
+        <div class="output-section">
+            {% if output is none %}
+                <p class="no-output">Please fill-in all of the inputs</p>
+            {% else %}
+                <p class="prediction-output"><b>Prediction</b>:<br> {{ output|safe }}</p>
+            {% endif %}
+        </div>
+
+    </div>
+</body>
+</html>

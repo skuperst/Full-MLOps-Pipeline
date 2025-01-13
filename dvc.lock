@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 9a71bcc173bead4d118e436321907857
-      size: 3879
+      md5: 1592d039d02591d752d121ee049f03b0
+      size: 4112
       isexec: true
     - path: src/download.py
       hash: md5
@@ -36,18 +36,18 @@ stages:
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
+      md5: 328e4c93c54aea044bf4faf1b4ae5229
       size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 9a71bcc173bead4d118e436321907857
-      size: 3879
+      md5: 1592d039d02591d752d121ee049f03b0
+      size: 4112
       isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: 35ea6a50dae4322cfda6bd76aca2cd10
-      size: 9300
+      md5: 2b443d202d3d172357b207cf4d81235e
+      size: 10113
       isexec: true
     params:
       params.yaml:
@@ -57,11 +57,13 @@ stages:
           output_reference_data_file_path: data/preprocessed_reference_data.csv
           output_current_data_file_path: data/preprocessed_current_data.csv
           rename_map:
+            number_project: number_of_projects
             time_spend_company: time_spend_in_company
             Work_accident: had_work_accidents
             left: left_or_not
             promotion_last_5years: promoted_last_5_years
             Department: department
+          prediction_column: left_or_not
           keep_duplicates: true
           column_impacting_the_split: satisfaction_level
           current_subset_size: 0.1
@@ -72,41 +74,41 @@ stages:
     outs:
     - path: data/flask_dictionary.json
       hash: md5
-      md5: b959884b5669c637477d45cec6f30455
-      size: 1406
+      md5: 2de61b4af1b8fa139e25c067303a0f0b
+      size: 1138
       isexec: true
     - path: data/onehot_name_dictionary.json
       hash: md5
-      md5: 8155109279f471fe3577e6cf5839f0ca
-      size: 776
+      md5: b82da1ddc0383342f6c9d8812a2b16ab
+      size: 784
       isexec: true
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 96c59d4692876334174ff3bcd01dc9a2
-      size: 149958
+      md5: bfd4be15161af63c11c1b6b946b7e69f
+      size: 149951
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 112e3b6a868ad05154519b73da8c4e59
-      size: 1347302
+      md5: 42d42d55bfffb49fa8f9580d369b67c8
+      size: 1347317
       isexec: true
   train:
     cmd: python src/train.py
     deps:
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 112e3b6a868ad05154519b73da8c4e59
-      size: 1347302
+      md5: 42d42d55bfffb49fa8f9580d369b67c8
+      size: 1347317
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
+      md5: 328e4c93c54aea044bf4faf1b4ae5229
       size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 9a71bcc173bead4d118e436321907857
-      size: 3879
+      md5: 1592d039d02591d752d121ee049f03b0
+      size: 4112
       isexec: true
     - path: src/train.py
       hash: md5
@@ -142,46 +144,46 @@ stages:
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: 1f5c4e4ef1e38d6f6d99f26cc96612d6
-      size: 264414
+      md5: 70dbfed408afcf3f4512669052868c6a
+      size: 264341
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 2204ec1baf1a4d77de8c1a5e5c8d73c7
+      md5: 1b1de900a0e230445c5b023f583b5c50
       size: 5412
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 5091655ee0022969f0ac1c578f3234ae
-      size: 33142
+      md5: 0d3b9f94c4dc9ce86dd900e7ffc545e4
+      size: 32186
       isexec: true
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 112e3b6a868ad05154519b73da8c4e59
-      size: 1347302
+      md5: 42d42d55bfffb49fa8f9580d369b67c8
+      size: 1347317
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 2204ec1baf1a4d77de8c1a5e5c8d73c7
+      md5: 1b1de900a0e230445c5b023f583b5c50
       size: 5412
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
+      md5: 328e4c93c54aea044bf4faf1b4ae5229
       size: 43
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 5091655ee0022969f0ac1c578f3234ae
-      size: 33142
+      md5: 0d3b9f94c4dc9ce86dd900e7ffc545e4
+      size: 32186
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 9a71bcc173bead4d118e436321907857
-      size: 3879
+      md5: 1592d039d02591d752d121ee049f03b0
+      size: 4112
       isexec: true
     - path: src/evaluate.py
       hash: md5
@@ -208,7 +210,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
+      md5: 328e4c93c54aea044bf4faf1b4ae5229
       size: 43
       isexec: true
   evidentlyai:
@@ -216,27 +218,27 @@ stages:
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 96c59d4692876334174ff3bcd01dc9a2
-      size: 149958
+      md5: bfd4be15161af63c11c1b6b946b7e69f
+      size: 149951
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
-      md5: 112e3b6a868ad05154519b73da8c4e59
-      size: 1347302
+      md5: 42d42d55bfffb49fa8f9580d369b67c8
+      size: 1347317
       isexec: true
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 6f8832eeb0f93fdb948d17f7a3d6246a
+      md5: 328e4c93c54aea044bf4faf1b4ae5229
       size: 43
       isexec: true
     - path: params.yaml
       hash: md5
-      md5: 9a71bcc173bead4d118e436321907857
-      size: 3879
+      md5: 1592d039d02591d752d121ee049f03b0
+      size: 4112
       isexec: true
     - path: src/evidentlyai.py
       hash: md5
-      md5: d0598025c6aaa99555661136241f5954
+      md5: 5ca984ab6c309995831fa3f7dccf795c
       size: 6551
       isexec: true
     params:
@@ -253,6 +255,6 @@ stages:
     outs:
     - path: evidently_htmls
       hash: md5
-      md5: 4e7bdb4c36949f927caf8147fa049398.dir
-      size: 9945377
+      md5: 84d0ed4f09ed9606d2b25aed269c9946.dir
+      size: 9945371
       nfiles: 4

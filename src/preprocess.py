@@ -38,8 +38,10 @@ def preprocess(**kwargs):
     time_period_column_name = kwargs["time_period_column_name"]
     onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
     output_reference_data_file_path = kwargs['output_reference_data_file_path']
+    prediction_column= kwargs['prediction_column']
     flask_dict_file_path = kwargs['flask_dict_file_path']
     output_current_data_file_path = kwargs['output_current_data_file_path']
+
 
     # Initiate logging
     logging.basicConfig(level=logging.INFO)
@@ -71,14 +73,26 @@ def preprocess(**kwargs):
         sys.exit(1)
 
     # Create and save a dictionary for the Flask API html template
-
     try:
-        flask_dict = dict([(col,dict({'label': col.capitalize().replace('_', ' '),
-                 'type': 'dropdown' if Data[col].nunique()<=10 else 'range',
-                 'options': sorted(Data[col].unique().tolist()) if Data[col].nunique()<=10  else [],
-                 'range': None if Data[col].nunique()<=10  else dict({'min': int(Data[col].min()), 'max': int(Data[col].max())}),
-                 'precision': int(Data[col].map(lambda x: len(str(x).split('.')[1])).max()) if t=='float' else None
-                })) for col, t in dict(Data.dtypes).items()])
+        # Initiate the dictionary
+        flask_dict = dict()
+        for col, t in dict(Data.dtypes).items():
+            if col != prediction_column: # For all columns except the prediction column
+                # For each column there is a (sub)dictionary
+                flask_dict[col] = dict()
+                # The label is the column name with sapce and capitalised
+                flask_dict[col]['label'] = col.capitalize().replace('_', ' ')
+                # If the column is a string type or there are less than 11 options in the column, a dropdwon menu will be used
+                if Data[col].dtype == 'object' or Data[col].nunique()<=10:
+                    flask_dict[col]['type_of_input'] = "dropdown"
+                    flask_dict[col]['options'] = sorted(Data[col].unique().tolist())
+                # ... otherwise a value will be inserted
+                else:
+                    flask_dict[col]['type_of_input'] = "manual"
+                    # The range is a dictionary with the minimum and the maximum  
+                    flask_dict[col]['range'] = dict({'min': int(Data[col].min()), 'max': int(Data[col].max())})
+                    # The 'value' precision
+                    flask_dict[col]['precision'] = 10**(-int(Data[col].map(lambda x: len(str(x).split('.')[1])).max())) if t=='float' else 1
         with open(os.path.join(curr_dir, os.pardir, flask_dict_file_path), 'w') as json_file:
             json.dump(flask_dict, json_file)
         logging.info("The column data used by Flask API was successfully created and saved.")
@@ -148,7 +162,7 @@ def preprocess(**kwargs):
     
 
     # One-hot transformation
-    # All string columns, except the current/current column
+    # All string columns, except the current/reference column
     categorical_columns =  Data.drop(time_period_column_name, axis=1).select_dtypes(exclude=['int', 'float']).columns
     # All numerical columns
     non_categorical_columns =  Data.select_dtypes(include=['int', 'float']).columns

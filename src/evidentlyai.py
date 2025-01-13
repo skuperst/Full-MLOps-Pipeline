@@ -69,7 +69,7 @@ def evidentlyai(**kwargs):
     # Ensure the EvidentlyAI html folder exists
     if not os.path.exists(html_folder_path):
         os.makedirs(html_folder_path)
-        logging.info("Created the html files folder.")
+        logging.info("Created the html-files folder.")
 
     # Load the train model
     model = pickle.load(open(model_file_path,'rb'))

@@ -19,11 +19,13 @@ preprocess:
   output_reference_data_file_path: &output_reference_data_file_path "data/preprocessed_reference_data.csv"     # The preprocessed reference data file path
   output_current_data_file_path: &output_current_data_file_path "data/preprocessed_current_data.csv"       # The preprocessed current data file path
   rename_map:                                                          # New names for the columns
+    number_project: number_of_projects
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
     left: &prediction_column left_or_not
     promotion_last_5years: promoted_last_5_years
     Department: department
+  prediction_column: *prediction_column
   keep_duplicates: true                                                # Should one keep the duplicate rows or not
   # Name of the column to influence the split into the "current" and the "reference" subsets ()
   column_impacting_the_split: satisfaction_level
@@ -34,7 +36,7 @@ preprocess:
   prob_coeff: 1.5
   # Name of the column to control the split
   time_period_column_name: &time_period_column_name 'time_period'
-   # The file with the dictionary used later on by Flask API to build the html template  
+  # The file with the dictionary used later on by Flask API to build the html template  
   flask_dict_file_path: &flask_dict_file_path "data/flask_dictionary.json"
   # The file with the dictionary for the column names one-hot transformation
   onehot_name_dictionary_file_path: &onehot_name_dictionary_file_path "data/onehot_name_dictionary.json" 
@@ -78,3 +80,7 @@ evidentlyai:
 
 flask_api:
   model_file_path: *model_file_path
+  flask_dict_file_path: *flask_dict_file_path
+  onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
+  test_X_file_path: *test_X_file_path
+

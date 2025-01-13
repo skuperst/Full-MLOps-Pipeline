@@ -2,3 +2,5 @@
 my_env/
 /mlflow_experiment_name.yaml
 /evidently_htmls
+__pycache__/
+*.pyc

@@ -13,3 +13,4 @@ matplotlib
 ipykernel
 ruamel.yaml
 evidently
+flask
