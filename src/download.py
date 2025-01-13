@@ -27,7 +27,10 @@ def download(**kwargs): #kaggle_dataset, kaggle_file, download_folder, download_
     else:
 
         # Code may raise an exception ...
-        try:  
+        try: 
+            
+            from dotenv import load_dotenv
+            load_dotenv()
 
             import kaggle
             from kaggle.api.kaggle_api_extended import KaggleApi

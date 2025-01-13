@@ -61,7 +61,7 @@ def form_handler():
         
         # Validate required fields
         if all([selected_values[key]!='' for key in flask_dict.keys()]):
-            
+
             # Build a dataframe with one row from the input data. The columns in the categorical columns list should stay string. Float or int otherwise.
             data = pd.DataFrame([dict([(col, val if (col in categorical_columns) 
                                              else float(val) if '.' in val else int(val)) for col, val in selected_values.items()])])
@@ -77,4 +77,4 @@ def form_handler():
     return render_template('ml_interface.html', flask_dict=flask_dict, selected_values=selected_values, output=output)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)

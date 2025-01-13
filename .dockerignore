@@ -1,0 +1,37 @@
+# Python cache files
+__pycache__
+*.pyc
+*.pyo
+
+# Virtual environment and Python environment directories
+my_env
+
+# IDE or editor config files
+.vscode
+.idea
+*.sublime-project
+*.sublime-workspace
+
+# Git repository files
+.git
+.gitignore
+
+# Logs, backups, or temporary files
+*.log
+*.bak
+*.swp
+*.db
+
+# Operating system specific files
+.DS_Store
+Thumbs.db
+
+# Build artifacts and dependencies
+build/
+dist/
+*.egg-info/
+
+# Sensitive files
+.env  
+secrets/
+*.pem

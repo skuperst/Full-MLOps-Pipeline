@@ -49,9 +49,8 @@ def evidentlyai(**kwargs):
         load_dotenv(override=True)
         # Access the variables
         EVIDENTLY_TOKEN = os.getenv("EVIDENTLY_TOKEN")
-        load_dotenv(override=True)
         EVIDENTLY_PROJECT_ID = os.getenv("EVIDENTLY_PROJECT_ID")
-        ws = CloudWorkspace(token=EVIDENTLY_TOKEN, url=evidentlyai_url)
+        ws = CloudWorkspace(token=EVIDENTLY_TOKEN, url=evidentlyai_url)  
         # Create the project if doesn't already exists (meaning that EVIDENTLY_PROJECT_ID is empty)
         if (EVIDENTLY_PROJECT_ID is None):
             project = ws.create_project(evidentlyai_project_name)
