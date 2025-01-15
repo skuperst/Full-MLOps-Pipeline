@@ -27,10 +27,18 @@ jobs:
           echo "Installing libraries ..."  
           pip install -r requirements.txt  
 
-      # Set up authentication for DVC with DagsHub (DVC remote)
-      - name: Set up DVC authentication
+      # Check the DVC authentication (DagsHub) and pull the data/data_raw.csv file 
+      - name: Pull the raw data file from DagsHub (if any)
         run: |
           set -e
+
+          echo 'Setting the remote DVC (DagsHub) credentials ...'
+          if ! (dvc remote modify origin --local auth basic &&
+                dvc remote modify -v origin --local access_key_id ${{ secrets.DAGSHUB_USER_NAME }} &&
+                dvc remote modify -v origin --local secret_access_key ${{ secrets.DAGSHUB_PASSWORD }}); then
+            echo 'DagsHub identification failed! Exiting...' 
+            exit 1 
+          fi
 
           echo 'Checking remote DVC (DagsHub) connection ...'
           if ! (dvc remote list | grep .); then
@@ -48,7 +56,7 @@ jobs:
           fi
 
       # Force DVC repro to re-run all of the existing steps
-      - name: Run DVC pipeline
+      - name: Run the full DVC pipeline
         run: |
           echo "Starting the DVC pipeline ..."
           dvc repro -f
