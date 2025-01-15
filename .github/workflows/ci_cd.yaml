@@ -53,9 +53,15 @@ jobs:
       - name: Create .env file dynamically
         run: |
           echo "Creating .env file..."
-          for secret in DAGSHUB_PASSWORD DAGSHUB_PASSWORD DAGSHUB_USER_NAME EVIDENTLY_PROJECT_ID EVIDENTLY_TOKEN KAGGLE_KEY KAGGLE_USERNAME MLFLOW_TRACKING_URI; do
-            echo "$secret=${{ secrets[$secret] }}" >> .env
-          done
+          
+          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
+          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
+          echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
+          echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
+          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
+          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+
           echo ".env file created."
 
       # Force DVC repro to re-run all of the existing steps
