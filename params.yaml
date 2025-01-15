@@ -3,9 +3,9 @@ set_experiment_name_script_file: src/set_experiment_name.py
 # The path of the json file with the MLFlow experiment name
 mlflow_experiment_name_file_path: "mlflow_experiment_name.yaml" 
 
-download_script_file: src/download.py
+download_script_file: src/create_dataset.py
 
-download:
+create_dataset:
   kaggle_dataset: manidevesh/hr-dataset-analysis  # The Kaggle file URL
   kaggle_file: "HR_DataSet.csv"                   # The original file name 
   download_folder: &input_folder data             # The folder to download the file to
