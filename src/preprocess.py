@@ -32,9 +32,6 @@ def preprocess(**kwargs):
     input_file = kwargs['input_file']
     keep_duplicates = kwargs['keep_duplicates']
     rename_map = kwargs['rename_map']
-    current_subset_size = kwargs["current_subset_size"] 
-    prob_coeff = kwargs['prob_coeff']
-    column_impacting_the_split = kwargs["column_impacting_the_split"]
     time_period_column_name = kwargs["time_period_column_name"]
     onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
     output_reference_data_file_path = kwargs['output_reference_data_file_path']
@@ -77,7 +74,7 @@ def preprocess(**kwargs):
         # Initiate the dictionary
         flask_dict = dict()
         for col, t in dict(Data.dtypes).items():
-            if col != prediction_column: # For all columns except the prediction column
+            if col not in [prediction_column , time_period_column_name]: # For all columns except the prediction column and reference/current column
                 # For each column there is a (sub)dictionary
                 flask_dict[col] = dict()
                 # The label is the column name with sapce and capitalised
@@ -99,20 +96,6 @@ def preprocess(**kwargs):
     except:
         logging.error("The column data used by Flask API was not saved!")
         sys.exit(1)
-
-
-    # Split the file into the 'reference and 'current' parts. This will be used by EvidentlyAI later on
-    dataset_size = Data.shape[0]
-    # Probabilities used to split the data set to the 'reference and the 'current' subsets
-    # For prob_coeff=0 the probabilities to fall into either dataset are the same
-    probabilities = np.exp(prob_coeff * ((np.arange(dataset_size, dtype=float) / (dataset_size - 1))))
-    # Normalization
-    probabilities /= probabilities.sum()
-    sampled_indices = np.random.choice(Data.sort_values(column_impacting_the_split, ascending=True).index, 
-                                       size=int(current_subset_size * dataset_size), p=probabilities, replace=False)
-    # Add the split column values
-    Data[time_period_column_name] = pd.Series(Data.index.isin(sampled_indices)).map({True: 'current', False: 'reference'})
-    logging.info("Dataset split into the current and the current subsets, {} and {} in size respectively.".format(dataset_size, sampled_indices.size))
 
     # Start an MLflow run
     with mlflow.start_run():

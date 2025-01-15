@@ -7,15 +7,15 @@ stages:
     outs:
     - ${mlflow_experiment_name_file_path}
 
-  download:
-    cmd: python ${download_script_file}
-    deps:
-    - params.yaml
-    - ${download_script_file}
-    params:
-     - download
-    outs:
-    - ${download.download_folder}/${download.download_file}
+  # download:
+  #   cmd: python ${download_script_file}
+  #   deps:
+  #   - params.yaml
+  #   - ${download_script_file}
+  #   params:
+  #    - download
+  #   outs:
+  #   - ${download.download_folder}/${download.download_file}
 
   preprocess:
     cmd: python ${preprocess_script_file}
