@@ -1,4 +1,4 @@
-name: CI/CDname
+name: CI/CD
 
 on:
   push:
@@ -11,50 +11,44 @@ jobs:
     runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the workflow
 
     steps:
-    # Checkout the code from GitHub repository
-    - name: Checkout code
-      uses: actions/checkout@v2  # Pulls the code from the repository
+      # Checkout the code from GitHub repository
+      - name: Checkout code
+        uses: actions/checkout@v2  # Pulls the code from the repository
 
-    # Set up Python environment
-    - name: Set up Python
-      uses: actions/setup-python@v2  # Sets up Python for the workflow
-      with:
-        python-version: '3.9'  # Specifies the Python version to use
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2  # Sets up Python for the workflow
+        with:
+          python-version: '3.9'  # Specifies the Python version to use
 
-    # Install dependencies from requirements.txt
-    - name: Install dependencies
-      run: |
-        echo "Installing libraries ..."  
-        pip install -r requirements.txt  
+      # Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          echo "Installing libraries ..."  
+          pip install -r requirements.txt  
 
-    # Set up authentication for DVC with DagsHub (DVC remote)
-    - name: Set up DVC authentication
-      run: |
-        set -e
+      # Set up authentication for DVC with DagsHub (DVC remote)
+      - name: Set up DVC authentication
+        run: |
+          set -e
 
-        echo 'Check remote DVC (DagsHub) connection ...'
-        if ! (dvc remote list | grep .); then
-          echo 'DVC remote list failed or no remotes found, checking config...' 
-          exit 1 
-        else:
-          echo 'Connection verified ...'
-        fi
+          echo 'Checking remote DVC (DagsHub) connection ...'
+          if ! (dvc remote list | grep .); then
+            echo 'DVC remote list failed or no remotes found, checking config...' 
+            exit 1 
+          else
+            echo 'Connection verified ...'
+          fi
 
-        if ! (dvc pull data/raw_data.csv); then
+          echo 'Attempting to pull raw data from DVC ...'
+          if ! (dvc pull data/raw_data.csv); then
             echo 'No raw data file found on DagsHub. No worries, the data will be downloaded from the Kaggle API.' 
-        else
+          else
             echo 'The raw data was successfully pulled from the remote DagsHub repository.' 
-        fi
+          fi
 
-    # Force DVC repro to re-run all of the existing steps
-    - name: Run DVC pipeline
-      run: |
-        dvc repro -f
-
-
-# if ! (dvc remote modify origin --local auth basic &&
-#       dvc remote modify -v origin --local access_key_id ${{ secrets.DAGSHUB_USER_NAME }} &&
-#       dvc remote modify -v origin --local secret_access_key ${{ secrets.DAGSHUB_PASSWORD }}); then
-#   echo 'DagsHub identification failed! Exiting...' 
-#   exit 1 
-# fi
+      # Force DVC repro to re-run all of the existing steps
+      - name: Run DVC pipeline
+        run: |
+          echo "Starting the DVC pipeline ..."
+          dvc repro -f
