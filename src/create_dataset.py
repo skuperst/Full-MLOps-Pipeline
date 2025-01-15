@@ -18,8 +18,8 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def create_dataset(**kwargs): 
 
-    create_dataset_folder = kwargs['create_dataset_folder']
-    create_dataset_file = kwargs['create_dataset_file']
+    download_folder = kwargs['download_folder']
+    download_file = kwargs['download_file']
     kaggle_dataset = kwargs['kaggle_dataset']
     kaggle_file = kwargs['kaggle_file']
 
@@ -31,10 +31,10 @@ def create_dataset(**kwargs):
     number_of_nan_values = kwargs['number_of_nan_values']
 
     # The full folder path to dlownload the file to
-    create_dataset_path = os.path.join(curr_dir, os.pardir, create_dataset_folder)
+    download_path = os.path.join(curr_dir, os.pardir, download_folder)
 
     # Check whether the file has already been create_dataseted
-    if os.path.exists(os.path.join(create_dataset_path, create_dataset_file)):
+    if os.path.exists(os.path.join(download_path, download_file)):
 
         logging.info("The CSV file has already been create_dataseted.")
     
@@ -53,9 +53,9 @@ def create_dataset(**kwargs):
 
             with contextlib.redirect_stdout(io.StringIO()): # Logging suppression
                 # create_dataset the file
-                api.dataset_create_dataset_files(dataset = kaggle_dataset, path = create_dataset_path, quiet=True, unzip=True)
+                api.dataset_download_files(dataset = kaggle_dataset, path = download_path, quiet=True, unzip=True)
                 # Rename the file
-                os.rename(os.path.join(create_dataset_path, kaggle_file), os.path.join(create_dataset_path, create_dataset_file))
+                os.rename(os.path.join(download_path, kaggle_file), os.path.join(download_path, download_file))
 
             logging.info("The CSV file was successfully create_dataseted from Kaggle.")
 
@@ -71,7 +71,7 @@ def create_dataset(**kwargs):
             sys.exit(1)
 
     # Reload the file
-    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, create_dataset_folder, create_dataset_file))
+    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, download_folder, download_file))
     # Split the file into the 'reference and 'current' parts. This will be used by EvidentlyAI later on
     dataset_size = Data.shape[0]
     # Probabilities used to split the data set to the 'reference and the 'current' subsets
@@ -92,7 +92,7 @@ def create_dataset(**kwargs):
 
     # Save the modified data
     try:
-        Data.to_csv(os.path.join(curr_dir, os.pardir, create_dataset_folder, create_dataset_file), index=False)
+        Data.to_csv(os.path.join(curr_dir, os.pardir, download_folder, download_file), index=False)
         logging.info("The modified Kaggle CSV data was successfully saved.")
     except:
         logging.error("The modified Kaggle CSV data was was not saved!")
