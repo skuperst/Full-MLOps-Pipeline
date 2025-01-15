@@ -31,18 +31,13 @@ jobs:
     - name: Set up DVC authentication
       run: |
         set -e
-        echo 'Initiating DVC remote identification...'
-        
-        if ! (dvc remote modify origin --local auth basic &&
-              dvc remote modify -v origin --local access_key_id ${{ secrets.DAGSHUB_USER_NAME }} &&
-              dvc remote modify -v origin --local secret_access_key ${{ secrets.DAGSHUB_PASSWORD }}); then
-          echo 'DagsHub identification failed! Exiting...' 
-          exit 1 
-        fi
 
+        echo 'Check remote DVC (DagsHub) connection ...'
         if ! (dvc remote list | grep .); then
           echo 'DVC remote list failed or no remotes found, checking config...' 
           exit 1 
+        else:
+          echo 'Connection verified ...'
         fi
 
         if ! (dvc pull data/raw_data.csv); then
@@ -55,3 +50,11 @@ jobs:
     - name: Run DVC pipeline
       run: |
         dvc repro -f
+
+
+# if ! (dvc remote modify origin --local auth basic &&
+#       dvc remote modify -v origin --local access_key_id ${{ secrets.DAGSHUB_USER_NAME }} &&
+#       dvc remote modify -v origin --local secret_access_key ${{ secrets.DAGSHUB_PASSWORD }}); then
+#   echo 'DagsHub identification failed! Exiting...' 
+#   exit 1 
+# fi
