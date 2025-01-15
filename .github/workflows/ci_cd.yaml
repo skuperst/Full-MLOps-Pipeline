@@ -32,15 +32,6 @@ jobs:
         run: |
           set -e
 
-          echo 'Setting the remote DVC (DagsHub) credentials ...'
-          if ! (dvc remote add origin s3://dvc &&
-                dvc remote modify origin endpointurl https://dagshub.com/skuperst/Full-MLOps-Pipeline.s3 &&
-                dvc remote modify -v origin --local access_key_id ${{ secrets.DAGSHUB_USER_NAME }} &&
-                dvc remote modify -v origin --local secret_access_key ${{ secrets.DAGSHUB_PASSWORD }}); then
-            echo 'DagsHub identification failed! Exiting...' 
-            exit 1 
-          fi
-
           echo 'Checking remote DVC (DagsHub) connection ...'
           if ! (dvc remote list | grep .); then
             echo 'DVC remote list failed or no remotes found, checking config...' 
@@ -49,8 +40,10 @@ jobs:
             echo 'Connection verified ...'
           fi
 
+          dvc status | grep -i "missing" | awk '{print $1}'
+
           echo 'Attempting to pull raw data from DVC ...'
-          if ! (dvc pull data/raw_data.csv); then
+          if ! (dvc pull -v data/raw_data.csv); then
             echo 'No raw data file found on DagsHub. No worries, the data will be downloaded from the Kaggle API.' 
           else
             echo 'The raw data was successfully pulled from the remote DagsHub repository.' 
@@ -61,3 +54,14 @@ jobs:
         run: |
           echo "Starting the DVC pipeline ..."
           dvc repro -f
+
+
+          
+          # echo 'Setting the remote DVC (DagsHub) credentials ...'
+          # if ! (dvc remote add origin s3://dvc &&
+          #       dvc remote modify origin endpointurl https://dagshub.com/skuperst/Full-MLOps-Pipeline.s3 &&
+          #       dvc remote modify -v origin --local access_key_id ${{ secrets.DAGSHUB_USER_NAME }} &&
+          #       dvc remote modify -v origin --local secret_access_key ${{ secrets.DAGSHUB_PASSWORD }}); then
+          #   echo 'DagsHub identification failed! Exiting...' 
+          #   exit 1 
+          # fi
