@@ -1,3 +1,11 @@
+# Ignore everything in the data directory except the directory itself
+data/*
+!data/
+
+# Ignore everything in the models directory except the directory itself
+models/*
+!models/
+
 # Python cache files
 __pycache__
 *.pyc

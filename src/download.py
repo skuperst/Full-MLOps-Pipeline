@@ -43,7 +43,7 @@ def download(**kwargs): #kaggle_dataset, kaggle_file, download_folder, download_
                 # Rename the file
                 os.rename(os.path.join(download_path, kwargs['kaggle_file']), os.path.join(download_path, kwargs['download_file']))
 
-            logging.info("The CSV file is successfully downloaded.")
+            logging.info("The CSV file is successfully downloaded from Kaggle.")
 
         # ... if the kaggle.json file is nowhere to be found
         except OSError as e:

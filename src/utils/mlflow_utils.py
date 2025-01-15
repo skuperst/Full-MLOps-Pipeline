@@ -22,14 +22,9 @@ def configure_mlflow():
 
     # Load the .env file
     load_dotenv(override=True)
-    # Access the variables
-    mlflow_uri = os.getenv("MLFLOW_TRACKING_URI")
-    user_name = os.getenv("USER_NAME")
-    password = os.getenv("PASSWORD")
     # Set environment variables for authentication
-    os.environ["MLFLOW_TRACKING_URI"] = mlflow_uri
-    os.environ["MLFLOW_TRACKING_USERNAME"] = user_name
-    os.environ["MLFLOW_TRACKING_PASSWORD"] = password
+    os.environ["MLFLOW_TRACKING_USERNAME"] = os.getenv("DAGSHUB_USER_NAME")
+    os.environ["MLFLOW_TRACKING_PASSWORD"] = os.getenv("DAGSHUB_PASSWORD")
 
     try:
         # Set tracking URI programmatically (reads from environment variable)

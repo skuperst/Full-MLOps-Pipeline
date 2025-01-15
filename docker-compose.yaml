@@ -1,30 +1,50 @@
-version: '3'
+version: '3.3'
 
 services:
   # Service for DVC pipeline
   dvc:
     build: .
     image: dvc_pipeline_image
+    env_file:
+      - .env
+    environment:
+      - DAGSHUB_USER_NAME=${DAGSHUB_USER_NAME}
+      - DAGSHUB_PASSWORD=${DAGSHUB_PASSWORD}
     container_name: dvc_pipeline_container
-    command: dvc repro -f # This will run the DVC pipeline
+    command: >
+      sh -c "
+      set -e &&
+      
+      (dvc remote list | grep . || { echo 'DVC remote list failed or no remotes found, checking config...'; exit 1; }) &&
+      
+      echo 'Authorization successful. Pulling the raw data from DagsHub repo ...' &&
+
+      (dvc pull data/raw_data.csv && echo 'The raw data was successfully pulled from the remore DagsHub repository.'
+      || echo 'No raw data file found on DagsHub. No worries, the data will be downloaded from the Kaggle API'.) &&
+      dvc repro -f &&
+      dvc push
+      "
+
     volumes:
       - .:/app
-    environment:
-      - PYTHONUNBUFFERED=1
-    env_file:
-      - .env  # This will be read by docker-compose and passed to the container
+      
+      # echo 'Starting DVC remote identification...' &&
+      # ((dvc remote modify origin --local auth basic &&
+      #   dvc remote modify -v origin --local access_key_id $DAGSHUB_USER_NAME &&
+      #   dvc remote modify -v origin --local secret_access_key $DAGSHUB_PASSWORD)  &&
+      # echo 'Checking DVC remote configuration...' || { echo 'DagsHub identification failed! Exiting...'; exit 1; }) &&
 
   # Service for Flask application
   flask:
     build: .
     image: flask_api_image
     container_name: flask_api_container
-    command: python src/flask_api.py  # This will run the Flask app
-    volumes:
-      - .:/app  # Mount the project directory to the container
-    ports:
-      - "5000:5000"  # Expose port 5000 for Flask app
-    environment:
-      - PYTHONUNBUFFERED=1  # Ensure unbuffered output for real-time logs
-      - FLASK_ENV=production  # Set environment to production (no debug mode)
+    depends_on:
+      dvc:
+        condition: service_completed_successfully
 
+    command: python src/flask_api.py
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
