@@ -1,6 +1,6 @@
-# Ignore everything in the data directory except the directory itself
+# Ignore everything in the data directory except for modified_raw_data.csv
 data/*
-!data/
+!data/modified_raw_data.csv
 
 # Ignore everything in the models directory except the directory itself
 models/*

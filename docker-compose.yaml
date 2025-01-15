@@ -17,15 +17,21 @@ services:
       
       (dvc remote list | grep . || { echo 'DVC remote list failed or no remotes found, checking config...'; exit 1; }) &&
       
-      echo 'Authorization successful. Pulling the raw data from DagsHub repo ...' &&
+      echo 'Remote DVC authorization was successful ...' &&
+      
+      (if [ -f data/modified_raw_data.csv ]; then
+        echo 'Raw data file exists';
+      else
+        echo 'Raw data file does not exist. The data will be downloaded from Kaggle API';
+        python src/create_dataset.py;
+      fi) &&
 
-      (dvc pull data/raw_data.csv 
-      && echo 'The raw data was successfully pulled from the remote DagsHub repository.'
-      || echo 'No raw data file found on DagsHub. No worries, the data will be downloaded from the Kaggle API'.) &&
-
+      echo 'Running the DVC pipeline' &&
       dvc repro -f &&
-      dvc push
-      "
+
+      echo 'Pushing to the remote (DagsHub)' &&
+      dvc push"
+
     volumes:
       - .:/app
 
