@@ -7,9 +7,9 @@ services:
     image: dvc_pipeline_image
     env_file:
       - .env
-    environment:
-      - DAGSHUB_USER_NAME=${DAGSHUB_USER_NAME}
-      - DAGSHUB_PASSWORD=${DAGSHUB_PASSWORD}
+    # environment:
+    #   - DAGSHUB_USER_NAME=${DAGSHUB_USER_NAME}
+    #   - DAGSHUB_PASSWORD=${DAGSHUB_PASSWORD}
     container_name: dvc_pipeline_container
     command: >
       sh -c "
@@ -19,20 +19,15 @@ services:
       
       echo 'Authorization successful. Pulling the raw data from DagsHub repo ...' &&
 
-      (dvc pull data/raw_data.csv && echo 'The raw data was successfully pulled from the remore DagsHub repository.'
+      (dvc pull data/raw_data.csv 
+      && echo 'The raw data was successfully pulled from the remote DagsHub repository.'
       || echo 'No raw data file found on DagsHub. No worries, the data will be downloaded from the Kaggle API'.) &&
+
       dvc repro -f &&
       dvc push
       "
-
     volumes:
       - .:/app
-      
-      # echo 'Starting DVC remote identification...' &&
-      # ((dvc remote modify origin --local auth basic &&
-      #   dvc remote modify -v origin --local access_key_id $DAGSHUB_USER_NAME &&
-      #   dvc remote modify -v origin --local secret_access_key $DAGSHUB_PASSWORD)  &&
-      # echo 'Checking DVC remote configuration...' || { echo 'DagsHub identification failed! Exiting...'; exit 1; }) &&
 
   # Service for Flask application
   flask:

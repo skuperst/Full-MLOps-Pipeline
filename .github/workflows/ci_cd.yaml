@@ -50,6 +50,7 @@ jobs:
             echo "Remote 'origin' found."
           else
             echo "Remote 'origin' not found. Adding remote with credentials..."
+            dvc remote modify origin --local auth basic
             dvc remote modify origin --local access_key_id $DAGSHUB_USER_NAME
             dvc remote modify origin --local secret_access_key $DAGSHUB_PASSWORD
           fi
