@@ -22,7 +22,7 @@ services:
       (if [ -f data/modified_raw_data.csv ]; then
         echo 'Raw data file exists';
       else
-        echo 'Raw data file does not exist. The data will be downloaded from Kaggle API';
+        echo 'Raw data file does not exist. The data will be created using the Kaggle API';
         python src/create_dataset.py;
       fi) &&
 
