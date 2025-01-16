@@ -119,7 +119,7 @@ jobs:
       # Run dvc repro -f inside the dvc_pipeline container
       - name: Run DVC repro inside the container
         run: |
-          docker-compose -f docker-compose-cicd.yaml exec dvc_pipeline dvc repro -f
+          docker-compose -f docker-compose-cicd.yaml exec -T dvc_pipeline dvc repro -f
 
       # Shut down Docker containers after the workflow
       - name: Shut down Docker containers
