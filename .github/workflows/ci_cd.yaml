@@ -106,31 +106,22 @@ jobs:
           echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
           echo ".env file created."
 
-      # Build Docker images using docker-compose
+      # Build Docker images using docker-compose-cicd.yaml
       - name: Build Docker images
         run: |
-          docker-compose -f docker-compose.yaml build
+          docker-compose -f docker-compose-cicd.yaml build
 
-      # Start Docker containers using docker-compose
+      # Start Docker containers using docker-compose-cicd.yaml
       - name: Start Docker containers
         run: |
-          docker-compose -f docker-compose.yaml up -d
-        env:
-          DAGSHUB_PASSWORD: ${{ secrets.DAGSHUB_PASSWORD }}
-          DAGSHUB_USER_NAME: ${{ secrets.DAGSHUB_USER_NAME }}
-          EVIDENTLY_PROJECT_ID: ${{ secrets.EVIDENTLY_PROJECT_ID }}
-          EVIDENTLY_TOKEN: ${{ secrets.EVIDENTLY_TOKEN }}
-          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-          HF_GITHUB_ACTIONS_TOKEN: ${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}
+          docker-compose -f docker-compose-cicd.yaml up -d
 
       # Run dvc repro -f inside the dvc_pipeline container
       - name: Run DVC repro inside the container
         run: |
-          docker-compose exec dvc_pipeline dvc repro -f
+          docker-compose -f docker-compose-cicd.yaml exec dvc_pipeline dvc repro -f
 
       # Shut down Docker containers after the workflow
       - name: Shut down Docker containers
         run: |
-          docker-compose down
+          docker-compose -f docker-compose-cicd.yaml down
