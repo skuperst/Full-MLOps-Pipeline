@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   # Service for DVC pipeline
-  dvc:
+  dvc_pipeline:
     build: .
     image: dvc_pipeline_image
     env_file:
@@ -41,7 +41,7 @@ services:
     image: flask_api_image
     container_name: flask_api_container
     depends_on:
-      dvc:
+      dvc_pipeline:
         condition: service_completed_successfully
 
     command: python src/flask_api.py

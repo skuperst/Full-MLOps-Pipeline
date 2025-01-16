@@ -1,53 +1,98 @@
-name: CI/CD
+# name: CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - main  # Trigger the workflow on push to the main branch
+#   workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+
+# jobs:
+#   Create_Run_Deploy:
+#     runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the workflow
+
+#     steps:
+#       # Checkout the code from GitHub repository
+#       - name: Checkout code
+#         uses: actions/checkout@v2  # Pulls the code from the repository
+
+#       # Set up Python environment
+#       - name: Set up Python
+#         uses: actions/setup-python@v2  # Sets up Python for the workflow
+#         with:
+#           python-version: '3.9'  # Specifies the Python version to use
+
+#       # Install dependencies from requirements.txt
+#       - name: Install dependencies
+#         run: |
+#           echo "Installing libraries ..."  
+#           pip install -r requirements.txt  
+
+#       - name: Create .env file dynamically
+#         run: |
+#           echo "Creating .env file..."
+
+#           echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
+#           echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
+#           echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
+#           echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
+#           echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
+#           echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
+#           echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+#           echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
+
+#           echo ".env file created."
+
+#       - name: Create the dataset
+#         run: |
+#           echo 'Creating a raw dataset using the Kaggle API ...'
+#           python src/create_dataset.py
+          
+#       # Force DVC repro to re-run all of the existing steps
+#       - name: Run the full DVC pipeline
+#         run: |
+#           echo 'Starting the DVC pipeline ...'
+#           dvc repro -f
+
+
+
+name: Build and Run Docker Containers
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the main branch
-  workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+      - main  # Trigger on push to main branch
+  workflow_dispatch: 
 
 jobs:
-  Create_Run_Deploy:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the workflow
+  build:
+    runs-on: ubuntu-latest  # Use an Ubuntu runner
 
     steps:
-      # Checkout the code from GitHub repository
+      # Checkout the code
       - name: Checkout code
-        uses: actions/checkout@v2  # Pulls the code from the repository
+        uses: actions/checkout@v3
 
-      # Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v2  # Sets up Python for the workflow
-        with:
-          python-version: '3.9'  # Specifies the Python version to use
-
-      # Install dependencies from requirements.txt
-      - name: Install dependencies
+      # Set up Docker (Install Docker and Docker Compose)
+      - name: Set up Docker
         run: |
-          echo "Installing libraries ..."  
-          pip install -r requirements.txt  
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
 
-      - name: Create .env file dynamically
+      # Build Docker images using docker-compose
+      - name: Build Docker images
         run: |
-          echo "Creating .env file..."
+          docker-compose -f docker-compose.yml build
 
-          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
-          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
-          echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
-          echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
-          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
-          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
-          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
-
-          echo ".env file created."
-
-      - name: Create the dataset
+      # Start Docker containers using docker-compose
+      - name: Start Docker containers
         run: |
-          echo 'Creating a raw dataset using the Kaggle API ...'
-          python src/create_dataset.py
-          
-      # Force DVC repro to re-run all of the existing steps
-      - name: Run the full DVC pipeline
+          docker-compose -f docker-compose.yml up -d
+
+      - name: Run tests inside Docker container
         run: |
-          echo 'Starting the DVC pipeline ...'
-          dvc repro -f
+          docker-compose exec dvc_pipeline dvc repro -f 
+
+      # Shut down containers after the workflow
+      - name: Shut down Docker containers
+        run: |
+          docker-compose down
