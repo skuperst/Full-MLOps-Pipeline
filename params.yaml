@@ -52,10 +52,10 @@ train:
   test_y_file_path: &test_y_file_path "data/test_y.csv"                # The full path of the test dataset (targets)
   random_state: 42
   cross_validations: 3
-  max_depth: [2, 3, 3] # [1, 4, 1]                                     # Hyperparameter ranges for the grid search
-  min_samples_split: [8, 9, 1] #[4, 13, 4] 
-  n_estimators: [40, 41, 10] #[20, 61, 10]
-  learning_rate: [0.8, 1.1, 0.2] #[0.8, 1.3, 0.2]
+  max_depth: [1, 4, 1]                                     # Hyperparameter ranges for the grid search
+  min_samples_split: [4, 13, 4] 
+  n_estimators: [20, 61, 10]
+  learning_rate: [0.8, 1.3, 0.2]
   model_file_path: &model_file_path models/model.pkl                   # The full path of the best training model
 
 evaluate_script_file: src/evaluate.py
@@ -93,4 +93,4 @@ hugging_face_push:
   hf_repo_id: "skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors"
   model_file_path: *model_file_path
   current_accuracy_dict_file: *current_accuracy_dict_file
-  f1_threshold: 0.91 # The minimal value of tte CURRENT f1-score for model to be deployed 
+  f1_threshold: 0.93 # The minimal value of tte CURRENT f1-score for model to be deployed 
