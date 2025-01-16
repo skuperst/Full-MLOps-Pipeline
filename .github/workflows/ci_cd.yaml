@@ -54,20 +54,20 @@
 #           dvc repro -f
 
 
-
 name: CI/CD
 
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
-  workflow_dispatch: 
+      - main
+  workflow_dispatch:
+
 jobs:
   build:
-    runs-on: ubuntu-latest  # Use an Ubuntu runner
+    runs-on: ubuntu-latest
 
     steps:
-      # Checkout the code
+      # Checkout the code from GitHub repository
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -102,13 +102,22 @@ jobs:
       - name: Start Docker containers
         run: |
           docker-compose -f docker-compose.yaml up -d
-      
-      # run dvc repro -f 
-      - name: Run tests inside Docker container
-        run: |
-          docker-compose exec dvc_pipeline dvc repro -f 
+        env:
+          DAGSHUB_PASSWORD: ${{ secrets.DAGSHUB_PASSWORD }}
+          DAGSHUB_USER_NAME: ${{ secrets.DAGSHUB_USER_NAME }}
+          EVIDENTLY_PROJECT_ID: ${{ secrets.EVIDENTLY_PROJECT_ID }}
+          EVIDENTLY_TOKEN: ${{ secrets.EVIDENTLY_TOKEN }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+          KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          HF_GITHUB_ACTIONS_TOKEN: ${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}
 
-      # Shut down containers after the workflow
+      # Run dvc repro -f inside the dvc_pipeline container
+      - name: Run DVC repro inside the dvc container
+        run: |
+          docker-compose exec dvc dvc repro -f
+
+      # Shut down Docker containers after the workflow
       - name: Shut down Docker containers
         run: |
           docker-compose down
