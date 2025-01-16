@@ -63,7 +63,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  Create_Run_Deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -93,6 +93,19 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
+      # Create .env file dynamically
+      - name: Create .env file dynamically
+        run: |
+          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
+          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
+          echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
+          echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
+          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
+          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+          echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
+          echo ".env file created."
+
       # Build Docker images using docker-compose
       - name: Build Docker images
         run: |
@@ -113,9 +126,9 @@ jobs:
           HF_GITHUB_ACTIONS_TOKEN: ${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}
 
       # Run dvc repro -f inside the dvc_pipeline container
-      - name: Run DVC repro inside the dvc container
+      - name: Run DVC repro inside the container
         run: |
-          docker-compose exec dvc dvc repro -f
+          docker-compose exec dvc_pipeline dvc repro -f
 
       # Shut down Docker containers after the workflow
       - name: Shut down Docker containers
