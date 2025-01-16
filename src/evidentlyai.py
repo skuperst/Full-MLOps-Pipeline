@@ -10,6 +10,8 @@ import yaml
 import pickle
 from dotenv import load_dotenv
 
+import json
+
 from evidently.ui.workspace.cloud import CloudWorkspace
 from evidently.pipeline.column_mapping import ColumnMapping
 from evidently.report import Report
@@ -18,6 +20,8 @@ from evidently.metric_preset import DataQualityPreset, DataDriftPreset, Classifi
 import pandas as pd
 
 import mlflow
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
 
 from utils.mlflow_utils import configure_mlflow
 
@@ -40,7 +44,8 @@ def evidentlyai(**kwargs):
     current_data_file_path = kwargs['current_data_file_path']
     model_file_path = kwargs['model_file_path']
     prediction_column = kwargs['prediction_column']
-    evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
+    evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name'] 
+    current_accuracy_dict_file = kwargs['current_accuracy_dict_file']
 
     configure_mlflow()
     
@@ -84,8 +89,27 @@ def evidentlyai(**kwargs):
     numerical_columns = reference_data.select_dtypes(include=['int', 'float']).columns
 
     # Calculate the predictions
-    reference_data['prediction'] = model.predict(reference_data.drop('left_or_not', axis=1))
-    current_data['prediction'] = model.predict(current_data.drop('left_or_not', axis=1))
+    reference_data['prediction'] = model.predict(reference_data.drop(prediction_column, axis=1))
+    current_data['prediction'] = model.predict(current_data.drop(prediction_column, axis=1))
+
+    # Current accuracies
+    # Accuracy
+    accuracy = accuracy_score(current_data['prediction'], current_data[prediction_column])
+    # Precision
+    precision = precision_score(current_data['prediction'], current_data[prediction_column])
+    # Recall
+    recall = recall_score(current_data['prediction'], current_data[prediction_column])
+    # F1 score
+    f1 = f1_score(current_data['prediction'], current_data[prediction_column])
+
+    try:
+        with open(os.path.join(curr_dir, os.pardir, current_accuracy_dict_file), 'w') as json_file:
+            json.dump({'Accuracy': accuracy, 'Precision': precision, 'Recall': recall, 'F1-score': f1}, json_file)
+        logging.info('The current dataset accuracies were successfully saved.')
+    except:
+        logging.error('The current dataset accuracies were not saved!')
+        sys.exit(1)
+
 
     column_mapping = ColumnMapping()
     column_mapping.target = prediction_column

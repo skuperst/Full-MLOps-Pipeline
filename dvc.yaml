@@ -20,8 +20,8 @@ stages:
   preprocess:
     cmd: python ${preprocess_script_file}
     deps:
-    - params.yaml
-    - ${mlflow_experiment_name_file_path}
+    # - params.yaml
+    # - ${mlflow_experiment_name_file_path}
     - ${preprocess_script_file}
     - ${create_dataset.download_folder}/${create_dataset.download_file} 
     params:
@@ -35,8 +35,8 @@ stages:
   train:
     cmd: python ${train_script_file}
     deps:
-    - params.yaml
-    - ${mlflow_experiment_name_file_path}
+    # - params.yaml
+    # - ${mlflow_experiment_name_file_path}
     - ${train_script_file}
     - ${preprocess.output_reference_data_file_path}     
     params:
@@ -49,8 +49,8 @@ stages:
   evaluate:
     cmd: python ${evaluate_script_file}
     deps:
-    - params.yaml
-    - ${mlflow_experiment_name_file_path}
+    # - params.yaml
+    # - ${mlflow_experiment_name_file_path}
     - ${evaluate_script_file}
     - ${preprocess.output_reference_data_file_path}    
     - ${train.test_y_file_path}    
@@ -61,8 +61,8 @@ stages:
   evidentlyai:
     cmd: python ${evidentlyai_script_file}
     deps:
-    - params.yaml
-    - ${mlflow_experiment_name_file_path}
+    # - params.yaml
+    # - ${mlflow_experiment_name_file_path}
     - ${evidentlyai_script_file}
     - ${preprocess.output_reference_data_file_path}
     - ${preprocess.output_current_data_file_path}
@@ -70,3 +70,15 @@ stages:
     - evidentlyai
     outs:
     - ${evidentlyai.evidently_htmls_folder_name}
+    - ${evidentlyai.current_accuracy_dict_file}
+
+  hugging_face_push:
+    cmd: python ${hugging_face_push_script_file}
+    deps:
+    # - params.yaml
+    # - ${mlflow_experiment_name_file_path}
+    - ${hugging_face_push_script_file}
+    - ${evidentlyai.current_accuracy_dict_file}
+    - ${train.model_file_path}
+    params:
+    - hugging_face_push

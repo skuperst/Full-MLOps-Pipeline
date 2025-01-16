@@ -38,16 +38,6 @@ stages:
       md5: 4ddf5c4a7a0ecbab6fd1a157812cade7
       size: 699189
       isexec: true
-    - path: mlflow_experiment_name.yaml
-      hash: md5
-      md5: 6893ce88e90e9b9c4252f01e1dfab525
-      size: 43
-      isexec: true
-    - path: params.yaml
-      hash: md5
-      md5: b7cd733ba99666f4c869a2defc591b60
-      size: 4212
-      isexec: true
     - path: src/preprocess.py
       hash: md5
       md5: f3b231be026706de79303664de6d670d
@@ -101,16 +91,6 @@ stages:
       md5: 75821af915dabf8f06ccbbcb2571b0ab
       size: 1338642
       isexec: true
-    - path: mlflow_experiment_name.yaml
-      hash: md5
-      md5: 6893ce88e90e9b9c4252f01e1dfab525
-      size: 43
-      isexec: true
-    - path: params.yaml
-      hash: md5
-      md5: b7cd733ba99666f4c869a2defc591b60
-      size: 4212
-      isexec: true
     - path: src/train.py
       hash: md5
       md5: 03ad44432ed2d1f85031d0427c0e4175
@@ -155,7 +135,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 27bab16d904cd13d80ec534642161ba5
+      md5: f87101fa0fe419f86bcc19365f5ef9b1
       size: 33306
       isexec: true
   evaluate:
@@ -171,20 +151,10 @@ stages:
       md5: 365248a91444d5edc5dc42d2d2bfc412
       size: 5378
       isexec: true
-    - path: mlflow_experiment_name.yaml
-      hash: md5
-      md5: 6893ce88e90e9b9c4252f01e1dfab525
-      size: 43
-      isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: 27bab16d904cd13d80ec534642161ba5
+      md5: f87101fa0fe419f86bcc19365f5ef9b1
       size: 33306
-      isexec: true
-    - path: params.yaml
-      hash: md5
-      md5: b7cd733ba99666f4c869a2defc591b60
-      size: 4212
       isexec: true
     - path: src/evaluate.py
       hash: md5
@@ -211,7 +181,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 6893ce88e90e9b9c4252f01e1dfab525
+      md5: 5b51f5261af710019dd015310532408b
       size: 43
       isexec: true
   evidentlyai:
@@ -227,20 +197,10 @@ stages:
       md5: 75821af915dabf8f06ccbbcb2571b0ab
       size: 1338642
       isexec: true
-    - path: mlflow_experiment_name.yaml
-      hash: md5
-      md5: 6893ce88e90e9b9c4252f01e1dfab525
-      size: 43
-      isexec: true
-    - path: params.yaml
-      hash: md5
-      md5: b7cd733ba99666f4c869a2defc591b60
-      size: 4212
-      isexec: true
     - path: src/evidentlyai.py
       hash: md5
-      md5: 956c7591f6b03ae1b0a177ed1cda7751
-      size: 6518
+      md5: f9011fec70bcbe0cdbb7f155d3fb964b
+      size: 7581
       isexec: true
     params:
       params.yaml:
@@ -253,9 +213,40 @@ stages:
           model_file_path: models/model.pkl
           prediction_column: left_or_not
           evidently_htmls_folder_name: evidently_htmls
+          current_accuracy_dict_file: current_accuracy_dict.json
     outs:
+    - path: current_accuracy_dict.json
+      hash: md5
+      md5: 43ca90fb2cfe41eb8c681ec9bc5e920a
+      size: 126
+      isexec: true
     - path: evidently_htmls
       hash: md5
-      md5: 65f561fb68dc7db693cccd8ab71875d4.dir
+      md5: 577c88b4ab79d0882c651fb61ad68071.dir
       size: 9946125
       nfiles: 4
+  hugging_face_push:
+    cmd: python src/hugging_face_push.py
+    deps:
+    - path: current_accuracy_dict.json
+      hash: md5
+      md5: 43ca90fb2cfe41eb8c681ec9bc5e920a
+      size: 126
+      isexec: true
+    - path: models/model.pkl
+      hash: md5
+      md5: f87101fa0fe419f86bcc19365f5ef9b1
+      size: 33306
+      isexec: true
+    - path: src/hugging_face_push.py
+      hash: md5
+      md5: 57240488e464e339be79d0ee4604bd51
+      size: 1724
+      isexec: true
+    params:
+      params.yaml:
+        hugging_face_push:
+          hf_repo_id: skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors
+          model_file_path: models/model.pkl
+          current_accuracy_dict_file: current_accuracy_dict.json
+          f1_threshold: 0.91

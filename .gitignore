@@ -4,3 +4,4 @@ my_env/
 /evidently_htmls
 __pycache__/
 *.pyc
+/current_accuracy_dict.json

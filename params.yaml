@@ -79,6 +79,7 @@ evidentlyai:
   model_file_path: *model_file_path
   prediction_column: *prediction_column
   evidently_htmls_folder_name: "evidently_htmls"
+  current_accuracy_dict_file: &current_accuracy_dict_file current_accuracy_dict.json
 
 flask_api:
   model_file_path: *model_file_path
@@ -86,3 +87,10 @@ flask_api:
   onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
   test_X_file_path: *test_X_file_path
 
+hugging_face_push_script_file: src/hugging_face_push.py
+
+hugging_face_push:
+  hf_repo_id: "skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors"
+  model_file_path: *model_file_path
+  current_accuracy_dict_file: *current_accuracy_dict_file
+  f1_threshold: 0.91 # The minimal value of tte CURRENT f1-score for model to be deployed 
