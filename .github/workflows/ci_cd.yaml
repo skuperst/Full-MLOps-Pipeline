@@ -62,28 +62,43 @@ on:
     branches:
       - main  # Trigger on push to main branch
   workflow_dispatch: 
-
 jobs:
   build:
     runs-on: ubuntu-latest  # Use an Ubuntu runner
 
     steps:
-      # Checkout the code
+      # Step 1: Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Docker (Install Docker and Docker Compose)
-      - name: Set up Docker
+      # Step 2: Remove any existing Docker and containerd (to resolve conflicts)
+      - name: Remove conflicting Docker and containerd
+        run: |
+          sudo apt-get remove -y docker docker-engine docker.io containerd runc
+          sudo apt-get autoremove -y
+
+      # Step 3: Install Docker and containerd.io
+      - name: Install Docker and containerd.io
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker.io docker-compose
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
-      # Build Docker images using docker-compose
+      # Step 4: Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      # Step 5: Build Docker images using docker-compose
       - name: Build Docker images
         run: |
           docker-compose -f docker-compose.yml build
 
-      # Start Docker containers using docker-compose
+      # Step 6: Start Docker containers using docker-compose
       - name: Start Docker containers
         run: |
           docker-compose -f docker-compose.yml up -d
