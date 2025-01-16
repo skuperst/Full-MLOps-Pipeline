@@ -7,9 +7,6 @@ services:
     image: dvc_pipeline_image
     env_file:
       - .env
-    # environment:
-    #   - DAGSHUB_USER_NAME=${DAGSHUB_USER_NAME}
-    #   - DAGSHUB_PASSWORD=${DAGSHUB_PASSWORD}
     container_name: dvc_pipeline_container
     command: >
       sh -c "
