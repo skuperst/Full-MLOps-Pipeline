@@ -67,9 +67,9 @@ jobs:
           # Set the Accuracy value as an environment variable
           echo "ACCURACY=$accuracy" >> $GITHUB_ENV
 
-      # Step 4: Conditionally run Python scripts if Accuracy is below 0.90
-      - name: Run training and evaluation if Accuracy < 0.99
-        if: ${{ env.ACCURACY < 0.90 }}
+      # Conditionally run Python scripts if Accuracy is below 0.98
+      - name: Run training and evaluation if Accuracy < 0.98
+        if: ${{ env.ACCURACY < 0.98 }}
         run: |
           echo "Accuracy is below 0.99. Running training and evaluation scripts..."
           python src/integration.py
