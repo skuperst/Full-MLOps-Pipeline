@@ -135,7 +135,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: e2896894c237a5d145f38e244dd57458
+      md5: a0fb008ebda8c07d09e25395b19b3803
       size: 77255
       isexec: true
   evaluate:
@@ -153,7 +153,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: e2896894c237a5d145f38e244dd57458
+      md5: a0fb008ebda8c07d09e25395b19b3803
       size: 77255
       isexec: true
     - path: src/evaluate.py
@@ -181,7 +181,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 4dde73914327a5d24ac85561ff141c55
+      md5: 8428c37f45be72c6643c3e98f9e091b7
       size: 43
       isexec: true
   evidentlyai:
@@ -222,7 +222,7 @@ stages:
       isexec: true
     - path: evidently_htmls
       hash: md5
-      md5: 430b5eb3b73d41f857990657bd55ad23.dir
+      md5: f37da417fcfe08424bb623db1c6a8e5e.dir
       size: 9946123
       nfiles: 4
   hugging_face_push:
@@ -235,7 +235,7 @@ stages:
       isexec: true
     - path: models/model.pkl
       hash: md5
-      md5: e2896894c237a5d145f38e244dd57458
+      md5: a0fb008ebda8c07d09e25395b19b3803
       size: 77255
       isexec: true
     - path: src/hugging_face_push.py

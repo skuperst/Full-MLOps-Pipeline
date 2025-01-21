@@ -94,3 +94,8 @@ hugging_face_push:
   model_file_path: *model_file_path
   current_accuracy_dict_file: *current_accuracy_dict_file
   f1_threshold: 0.93 # The minimal value of tte CURRENT f1-score for model to be deployed 
+
+
+integration:
+  reference_data_file_path: *output_reference_data_file_path
+  current_data_file_path: *output_current_data_file_path

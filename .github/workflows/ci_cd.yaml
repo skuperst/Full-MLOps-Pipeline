@@ -48,8 +48,30 @@ jobs:
           python src/create_dataset.py
           
       # Force DVC repro to re-run all of the existing steps
-      - name: Run the full DVC pipeline
-        run: |
-          echo 'Starting the DVC pipeline ...'
-          dvc repro -f
+      # - name: Run the full DVC pipeline
+      #   run: |
+      #     echo 'Starting the DVC pipeline ...'
+      #     dvc repro -f
 
+      # Install jq (for parsing JSON)
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      # Read Accuracy from JSON and set as environment variable
+      - name: Read Accuracy from JSON
+        id: read_accuracy
+        run: |
+          # Read the Accuracy value from current_accuracy_dict.json
+          accuracy=$(jq '.Accuracy' current_accuracy_dict.json)
+          echo "Accuracy value: $accuracy"
+          # Set the Accuracy value as an environment variable
+          echo "ACCURACY=$accuracy" >> $GITHUB_ENV
+
+      # Step 4: Conditionally run Python scripts if Accuracy is below 0.90
+      - name: Run training and evaluation if Accuracy < 0.99
+        if: ${{ env.ACCURACY < 0.90 }}
+        run: |
+          echo "Accuracy is below 0.99. Running training and evaluation scripts..."
+          python src/integration.py
+          python src/training.py
+          python src/evaluate.py
