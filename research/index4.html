@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Form Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        .container {
+            display: flex;
+            width: 80%;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .form-container {
+            width: 50%;
+        }
+
+        .output-container {
+            width: 50%;
+            border-left: 1px solid #ccc;
+            padding-left: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            width: 100%;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .output-container h2 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Flask Form Example</h1>
+    <div class="container">
+        <!-- Form Section -->
+        <div class="form-container">
+            <form method="POST">
+                <!-- Dropdown menu -->
+                <label for="dropdown">Choose an option:</label>
+                <select name="dropdown" id="dropdown">
+                    <option value="" {% if dropdown_value == None %}selected{% endif %}>--None--</option>
+                    <option value="Option 1" {% if dropdown_value == "Option 1" %}selected{% endif %}>Option 1</option>
+                    <option value="Option 2" {% if dropdown_value == "Option 2" %}selected{% endif %}>Option 2</option>
+                    <option value="Option 3" {% if dropdown_value == "Option 3" %}selected{% endif %}>Option 3</option>
+                </select>
+
+                <br><br>
+
+                <!-- Numeric input -->
+                <label for="numeric_input">Enter a number:</label>
+                <input type="number" name="numeric_input" id="numeric_input" value="{{ numeric_value if numeric_value is not none else '' }}" step="1" min="0">
+
+                <br><br>
+
+                <!-- Buttons -->
+                <button type="submit" name="submit">Submit</button>
+                <button type="submit" name="reset" formnovalidate>Reset</button>
+            </form>
+        </div>
+
+        <!-- Output Section -->
+        <div class="output-container">
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% else %}
+                {% if dropdown_value is not none and numeric_valueis is not none %}
+                    <p>Dropdown: {{ dropdown_value }}</p>
+                    <p>Numeric Input: {{ numeric_value }}</p>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

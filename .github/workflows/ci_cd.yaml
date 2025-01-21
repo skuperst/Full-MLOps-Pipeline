@@ -48,10 +48,10 @@ jobs:
           python src/create_dataset.py
           
       # Force DVC repro to re-run all of the existing steps
-      # - name: Run the full DVC pipeline
-      #   run: |
-      #     echo 'Starting the DVC pipeline ...'
-      #     dvc repro -f
+      - name: Run the full DVC pipeline
+        run: |
+          echo 'Starting the DVC pipeline ...'
+          dvc repro -f
 
       # Install jq (for parsing JSON)
       - name: Install jq
