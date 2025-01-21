@@ -71,7 +71,7 @@ jobs:
       - name: Run training and evaluation if Accuracy < 0.98
         if: ${{ env.ACCURACY < 0.98 }}
         run: |
-          echo "Accuracy is below 0.99. Running training and evaluation scripts..."
+          echo "Accuracy is below 0.98. Running training and evaluation scripts..."
           python src/integration.py
-          python src/training.py
+          python src/train.py
           python src/evaluate.py
