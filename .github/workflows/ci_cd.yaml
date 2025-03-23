@@ -1,77 +1,77 @@
-name: CI/CD
+# name: CI/CD
 
-on:
-  push:
-    branches:
-      - main  # Trigger the workflow on push to the main branch
-  workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+# on:
+#   push:
+#     branches:
+#       - main  # Trigger the workflow on push to the main branch
+#   workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
 
-jobs:
-  Create_Run_Deploy:
-    runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the workflow
+# jobs:
+#   Create_Run_Deploy:
+#     runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the workflow
 
-    steps:
-      # Checkout the code from GitHub repository
-      - name: Checkout code
-        uses: actions/checkout@v2  # Pulls the code from the repository
+#     steps:
+#       # Checkout the code from GitHub repository
+#       - name: Checkout code
+#         uses: actions/checkout@v2  # Pulls the code from the repository
 
-      # Set up Python environment
-      - name: Set up Python
-        uses: actions/setup-python@v2  # Sets up Python for the workflow
-        with:
-          python-version: '3.9'  # Specifies the Python version to use
+#       # Set up Python environment
+#       - name: Set up Python
+#         uses: actions/setup-python@v2  # Sets up Python for the workflow
+#         with:
+#           python-version: '3.9'  # Specifies the Python version to use
 
-      # Install dependencies from requirements.txt
-      - name: Install dependencies
-        run: |
-          echo "Installing libraries ..."  
-          pip install -r requirements.txt  
+#       # Install dependencies from requirements.txt
+#       - name: Install dependencies
+#         run: |
+#           echo "Installing libraries ..."  
+#           pip install -r requirements.txt  
 
-      - name: Create .env file dynamically
-        run: |
-          echo "Creating .env file..."
+#       - name: Create .env file dynamically
+#         run: |
+#           echo "Creating .env file..."
 
-          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
-          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
-          echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
-          echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
-          echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
-          echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
-          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
-          echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
+#           echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
+#           echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
+#           echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
+#           echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
+#           echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
+#           echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
+#           echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
+#           echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
 
-          echo ".env file created."
+#           echo ".env file created."
 
-      - name: Create the dataset
-        run: |
-          echo 'Creating a raw dataset using the Kaggle API ...'
-          python src/create_dataset.py
+#       - name: Create the dataset
+#         run: |
+#           echo 'Creating a raw dataset using the Kaggle API ...'
+#           python src/create_dataset.py
           
-      # Force DVC repro to re-run all of the existing steps
-      - name: Run the full DVC pipeline
-        run: |
-          echo 'Starting the DVC pipeline ...'
-          dvc repro -f
+#       # Force DVC repro to re-run all of the existing steps
+#       - name: Run the full DVC pipeline
+#         run: |
+#           echo 'Starting the DVC pipeline ...'
+#           dvc repro -f
 
-      # Install jq (for parsing JSON)
-      - name: Install jq
-        run: sudo apt-get install -y jq
+#       # Install jq (for parsing JSON)
+#       - name: Install jq
+#         run: sudo apt-get install -y jq
 
-      # Read Accuracy from JSON and set as environment variable
-      - name: Read Accuracy from JSON
-        id: read_accuracy
-        run: |
-          # Read the Accuracy value from current_accuracy_dict.json
-          accuracy=$(jq '.Accuracy' current_accuracy_dict.json)
-          echo "Accuracy value: $accuracy"
-          # Set the Accuracy value as an environment variable
-          echo "ACCURACY=$accuracy" >> $GITHUB_ENV
+#       # Read Accuracy from JSON and set as environment variable
+#       - name: Read Accuracy from JSON
+#         id: read_accuracy
+#         run: |
+#           # Read the Accuracy value from current_accuracy_dict.json
+#           accuracy=$(jq '.Accuracy' current_accuracy_dict.json)
+#           echo "Accuracy value: $accuracy"
+#           # Set the Accuracy value as an environment variable
+#           echo "ACCURACY=$accuracy" >> $GITHUB_ENV
 
-      # Conditionally run Python scripts if Accuracy is below 0.98
-      - name: Run training and evaluation if Accuracy < 0.98
-        if: ${{ env.ACCURACY < 0.98 }}
-        run: |
-          echo "Accuracy is below 0.98. Running training and evaluation scripts..."
-          python src/integration.py
-          python src/train.py
-          python src/evaluate.py
+#       # Conditionally run Python scripts if Accuracy is below 0.98
+#       - name: Run training and evaluation if Accuracy < 0.98
+#         if: ${{ env.ACCURACY < 0.98 }}
+#         run: |
+#           echo "Accuracy is below 0.98. Running training and evaluation scripts..."
+#           python src/integration.py
+#           python src/train.py
+#           python src/evaluate.py

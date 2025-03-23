@@ -1,4 +1,3 @@
-    
 import os
 import yaml
 from dotenv import load_dotenv
@@ -19,6 +18,7 @@ def configure_mlflow():
 
     # The experiment name from the params.yaml file
     experiment_name = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, os.pardir, experiment_name_file_path)))['exp_name']
+    # experiment_name = 'Model Created: 2025/03/22'
 
     # Load the .env file
     load_dotenv(override=True)

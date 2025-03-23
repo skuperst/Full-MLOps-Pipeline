@@ -21,7 +21,7 @@ import pandas as pd
 
 import mlflow
 
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
+#from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
 
 from utils.mlflow_utils import configure_mlflow
 
@@ -34,18 +34,19 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def evidentlyai(**kwargs):
 
-    # for key, value in kwargs.items():
-    #     globals()[key] = value
 
     evidentlyai_url = kwargs["evidentlyai_url"]
     evidentlyai_project_name = kwargs["evidentlyai_project_name"]
     evidentlyai_project_description = kwargs["evidentlyai_project_description"]
-    reference_data_file_path = kwargs['reference_data_file_path']
-    current_data_file_path = kwargs['current_data_file_path']
-    model_file_path = kwargs['model_file_path']
+
+    data_folder = kwargs['data_folder']
+    reference_data_file = kwargs['reference_data_file']
+    current_data_file = kwargs['current_data_file']
+    
+    old_model_file_path = kwargs['old_model_file_path']
     prediction_column = kwargs['prediction_column']
-    evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name'] 
-    current_accuracy_dict_file = kwargs['current_accuracy_dict_file']
+    evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
+    drift_file = kwargs['drift_file']
 
     configure_mlflow()
     
@@ -75,14 +76,11 @@ def evidentlyai(**kwargs):
         os.makedirs(html_folder_path)
         logging.info("Created the html-files folder.")
 
-    # Load the train model
-    model = pickle.load(open(model_file_path,'rb'))
-
     # Load CURRENT and REFERENCE datasets
-    reference_data = pd.read_csv(reference_data_file_path) 
-    current_data = pd.read_csv(current_data_file_path) 
+    reference_data = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, reference_data_file))
+    current_data = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, current_data_file))
     # Load the best training model
-    model = pickle.load(open(model_file_path,'rb'))
+    model = pickle.load(open(old_model_file_path,'rb'))
 
     # Group the columns into categorical and non-categorical
     categorical_columns = reference_data.select_dtypes(exclude=['int', 'float']).columns
@@ -91,25 +89,6 @@ def evidentlyai(**kwargs):
     # Calculate the predictions
     reference_data['prediction'] = model.predict(reference_data.drop(prediction_column, axis=1))
     current_data['prediction'] = model.predict(current_data.drop(prediction_column, axis=1))
-
-    # Current accuracies
-    # Accuracy
-    accuracy = accuracy_score(current_data['prediction'], current_data[prediction_column])
-    # Precision
-    precision = precision_score(current_data['prediction'], current_data[prediction_column])
-    # Recall
-    recall = recall_score(current_data['prediction'], current_data[prediction_column])
-    # F1 score
-    f1 = f1_score(current_data['prediction'], current_data[prediction_column])
-
-    try:
-        with open(os.path.join(curr_dir, os.pardir, current_accuracy_dict_file), 'w') as json_file:
-            json.dump({'Accuracy': accuracy, 'Precision': precision, 'Recall': recall, 'F1-score': f1}, json_file)
-        logging.info('The current dataset accuracies were successfully saved.')
-    except:
-        logging.error('The current dataset accuracies were not saved!')
-        sys.exit(1)
-
 
     column_mapping = ColumnMapping()
     column_mapping.target = prediction_column
@@ -153,7 +132,7 @@ def evidentlyai(**kwargs):
 
             # Save the the drift data and log it
             if metric_name=='DataDriftPreset':
-                csv_file_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, 'drifts.csv')
+                csv_file_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, drift_file)
                 drift_df = report.as_dataframe()['DataDriftTable'][['drift_score','drift_detected']].reset_index().sort_values('drift_score', 
                                                                                                                                ascending=False)
                 drift_df.to_csv(csv_file_path,  index=False)

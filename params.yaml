@@ -3,32 +3,19 @@ set_experiment_name_script_file: src/set_experiment_name.py
 # The path of the json file with the MLFlow experiment name
 mlflow_experiment_name_file_path: "mlflow_experiment_name.yaml" 
 
-download_script_file: src/create_dataset.py
+download_current_data_script_file: src/download_current_data.py
 
-create_dataset:
-  kaggle_dataset: manidevesh/hr-dataset-analysis  # The Kaggle file URL
-  kaggle_file: "HR_DataSet.csv"                   # The original file name 
-  download_folder: &input_folder data             # The folder to download the file to
-  download_file: &input_file "modified_raw_data.csv"       # The new name
-  # Name of the column to influence the split into the "current" and the "reference" subsets ()
-  column_impacting_the_split: satisfaction_level
-  # What percentage of the preprocessed data will go to the 'current' subset
-  current_subset_size: 0.1
-  # The parameter controlling the randomness of the data split. If zero, the distribution is absolutely random. 
-  # For positive values, the 'current' dataset values in the column column_for_split will have higher values.
-  prob_coeff: 1.5
-  # Name of the column to control the split
-  time_period_column_name: &time_period_column_name 'time_period'
-  number_of_nan_values: 100 # How many NaNs will be inserted
+download_current_data:
+  raw_current_data_file:  &raw_current_data_file "raw_current_data.csv" # File name of the raw current data in the bucket and in data_folder
+  data_folder: &data_folder "data"
 
 preprocess_script_file: src/preprocess.py
 
 preprocess:
-  input_folder: *input_folder
-  input_file: *input_file
-  output_reference_data_file_path: &output_reference_data_file_path "data/preprocessed_reference_data.csv" # The preprocessed reference data file path
-  output_current_data_file_path: &output_current_data_file_path "data/preprocessed_current_data.csv"       # The preprocessed current data file path
-  rename_map:                                                          # New names for the columns
+  data_folder: *data_folder
+  input_file: *raw_current_data_file
+  output_file: &output_file "preprocessed_current_data.csv"
+  rename_map:     # New names for the columns
     number_project: number_of_projects
     time_spend_company: time_spend_in_company
     Work_accident: had_work_accidents
@@ -37,36 +24,10 @@ preprocess:
     Department: department
   prediction_column: *prediction_column
   keep_duplicates: true                  # Should one keep the duplicate rows or not
-  time_period_column_name: *time_period_column_name
-  # The file with the dictionary used later on by Flask API to build the html template  
+  # The file with the dictionary used later on by Flask API to build the html template (needed only for the very first run)
   flask_dict_file_path: &flask_dict_file_path "data/flask_dictionary.json"
-  # The file with the dictionary for the column names one-hot transformation
+  # The file with the dictionary for the column names one-hot transformation (needed only for the very first run)
   onehot_name_dictionary_file_path: &onehot_name_dictionary_file_path "data/onehot_name_dictionary.json" 
-
-train_script_file: src/train.py
-
-train:
-  file_path: *output_reference_data_file_path
-  prediction_column: *prediction_column
-  test_X_file_path: &test_X_file_path "data/test_X.csv"                # The full path of the test dataset (features)
-  test_y_file_path: &test_y_file_path "data/test_y.csv"                # The full path of the test dataset (targets)
-  random_state: 42
-  cross_validations: 3
-  max_depth: [1, 4, 1]                                     # Hyperparameter ranges for the grid search
-  min_samples_split: [4, 13, 4] 
-  n_estimators: [20, 61, 10]
-  learning_rate: [0.8, 1.3, 0.2]
-  model_file_path: &model_file_path models/model.pkl                   # The full path of the best training model
-
-evaluate_script_file: src/evaluate.py
-
-evaluate:
-  model_file_path: *model_file_path
-  test_X_file_path: *test_X_file_path
-  test_y_file_path: *test_y_file_path
-  n_repeats: 10
-  random_state: 42
-  onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
 
 evidentlyai_script_file: src/evidentlyai.py
 
@@ -74,28 +35,88 @@ evidentlyai:
   evidentlyai_url: "https://app.evidently.cloud"
   evidentlyai_project_name: "Human Resources"
   evidentlyai_project_description: "Use AdaBoost to predict who left the company"
-  reference_data_file_path: *output_reference_data_file_path
-  current_data_file_path: *output_current_data_file_path
-  model_file_path: *model_file_path
+  data_folder: *data_folder
+  reference_data_file:  &reference_data_file 'preprocessed_reference_data.csv' # File name of the preprocessed reference data in the bucket and in data_folder
+  current_data_file: *output_file
+  old_model_file_path: &old_model_file_path "models/old_model.pkl" # The full path of the best training model
   prediction_column: *prediction_column
-  evidently_htmls_folder_name: "evidently_htmls"
-  current_accuracy_dict_file: &current_accuracy_dict_file current_accuracy_dict.json
+  evidently_htmls_folder_name: &evidently_htmls_folder_name "evidently_htmls"
+  drift_file: &drift_file "drift_file.csv"
 
-flask_api:
-  model_file_path: *model_file_path
-  flask_dict_file_path: *flask_dict_file_path
+merge_data_script_file: src/merge_data.py
+
+merge_data:
+  preprocessed_reference_data_file:  *reference_data_file # File name of the preprocessed reference data in the bucket and in data_folder
+  preprocessed_current_data_file:  *output_file
+  data_folder: *data_folder
+  merged_data_file: &merged_data_file 'merged_data.csv'
+
+
+train_script_file: src/train.py
+
+train:
+  file: *merged_data_file
+  data_folder: *data_folder
+  prediction_column: *prediction_column
+  test_X_file: &test_X_file "test_X.csv"        
+  test_y_file: &test_y_file "test_y.csv"             
+  random_state: 42
+  cross_validations: 3
+  max_depth: [1, 4, 1]                                   # Hyperparameter ranges for the grid search
+  min_samples_split: [4, 13, 4] 
+  n_estimators: [20, 61, 10]
+  learning_rate: [0.8, 1.3, 0.2]
+  new_model_file_path: &new_model_file_path "models/new_model.pkl"     # The full path of the best training model
+  evidently_htmls_folder_name: *evidently_htmls_folder_name
+  drift_file: *drift_file
+
+evaluate_script_file: src/evaluate.py
+
+evaluate:
+  new_model_file_path: *new_model_file_path
+  data_folder: *data_folder
+  test_X_file: *test_X_file
+  test_y_file: *test_y_file
+  n_repeats: 10
+  random_state: 42
+  evidently_htmls_folder_name: *evidently_htmls_folder_name
+  drift_file: *drift_file
   onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
-  test_X_file_path: *test_X_file_path
-
-hugging_face_push_script_file: src/hugging_face_push.py
-
-hugging_face_push:
-  hf_repo_id: "skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors"
-  model_file_path: *model_file_path
-  current_accuracy_dict_file: *current_accuracy_dict_file
-  f1_threshold: 0.93 # The minimal value of tte CURRENT f1-score for model to be deployed 
 
 
-integration:
-  reference_data_file_path: *output_reference_data_file_path
-  current_data_file_path: *output_current_data_file_path
+upload_predictions_script_file: src/upload_predictions.py
+
+upload_predictions:
+  data_folder: *data_folder
+  preprocessed_current_data_file:  *output_file
+  new_model_file_path: *new_model_file_path
+  prediction_column: *prediction_column
+  preprocessed_current_data_with_predictions_file: "preprocessed_current_data_with_predictions.csv"
+
+
+cleanup_script_file: src/upload_predictions.py
+
+cleanup:
+  data_folder: *data_folder
+  preprocessed_current_data_file:  *output_file
+  new_model_file_path: *new_model_file_path
+  prediction_column: *prediction_column
+  preprocessed_current_data_with_predictions_file: "preprocessed_current_data_with_predictions.csv"
+
+# flask_api:
+#   old_model_file_path: *old_model_file_path
+#   flask_dict_file_path: *flask_dict_file_path
+#   onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
+# #  test_X_file_path: *test_X_file_path
+
+# hugging_face_push_script_file: src/hugging_face_push.py
+
+# hugging_face_push:
+#   hf_repo_id: "skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors"
+#   new_model_file_path: *new_model_file_path
+#   f1_threshold: 0.93 # The minimal value of tte CURRENT f1-score for model to be deployed 
+
+
+#integration:
+#  reference_data_file_path: *output_reference_data_file_path
+#  current_data_file_path: *output_current_data_file_path

@@ -38,21 +38,32 @@ curr_dir = os.path.dirname(os.path.abspath(__file__))
 def train(**kwargs):
 
     output_column = kwargs['prediction_column']
-    file_path = kwargs['file_path']
+    file = kwargs['file']
+    data_folder = kwargs['data_folder']
     random_state=kwargs['random_state']
-    test_X_file_path = kwargs['test_X_file_path']
-    test_y_file_path = kwargs['test_y_file_path']
+    test_X_file = kwargs['test_X_file']
+    test_y_file = kwargs['test_y_file']
     max_depth = kwargs['max_depth']
     min_samples_split = kwargs['min_samples_split']
     n_estimators = kwargs['n_estimators']
     learning_rate = kwargs['learning_rate']
-    model_file_path = kwargs['model_file_path']    
-    cross_validations = kwargs['cross_validations']     
+    model_file_path = kwargs['new_model_file_path']    
+    cross_validations = kwargs['cross_validations']
+
+    evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
+    drift_file = kwargs['drift_file']
+    
+    drift_df = pd.read_csv(os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, drift_file))
+    if drift_df.query('drift_detected').shape[0] > 0:
+        logging.info("Data drift detected. The model will be retrained with the new data.")
+    else:
+        logging.info("No data drift detected. The model will be  NOT retrained.")
+        return
 
     configure_mlflow()
 
     # Download the data
-    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, file_path))
+    Data = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, file))
 
     # Split the prediction column from the dataframe 
     X = Data.drop(output_column, axis = 1) 
@@ -66,10 +77,10 @@ def train(**kwargs):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state)
     del(X,y)
 
-    # Save the test dataset
+    # Save the test datasets
     try:
-        X_test.to_csv(os.path.join(curr_dir, os.pardir, test_X_file_path), index=False)
-        y_test.to_csv(os.path.join(curr_dir, os.pardir, test_y_file_path), index=False)
+        X_test.to_csv(os.path.join(curr_dir, os.pardir, data_folder, test_X_file), index=False) 
+        y_test.to_csv(os.path.join(curr_dir, os.pardir, data_folder, test_y_file), index=False)
         logging.info("The test dataset CSV files were successfully saved.")
     except:
         logging.error("The test dataset CSV files were not saved!")
@@ -137,6 +148,10 @@ def train(**kwargs):
 
             
     del(best_model, X_train, y_train)
+
+    # Delete local current files unused in the rest of the pipeline 
+    os.remove(os.path.join(curr_dir, os.pardir, data_folder, os.path.join(curr_dir, os.pardir, data_folder, file)))
+    logging.info("Deleted file {}.".format(file))  
 
 # The train.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['train']

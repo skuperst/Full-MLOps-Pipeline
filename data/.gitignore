@@ -5,3 +5,7 @@
 /onehot_name_dictionary.json
 /preprocessed_reference_data.csv
 /flask_dictionary.json
+
+
+raw_current_data.csv
+/raw_reference_data.csv

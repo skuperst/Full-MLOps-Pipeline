@@ -38,16 +38,27 @@ def evaluate(**kwargs):
 
     configure_mlflow()
     
-    test_X_file_path = kwargs['test_X_file_path']
-    test_y_file_path= kwargs['test_y_file_path']
-    model_file_path = kwargs['model_file_path']
+    data_folder = kwargs['data_folder']
+    test_X_file = kwargs['test_X_file']
+    test_y_file = kwargs['test_y_file']
+    model_file_path = kwargs['new_model_file_path']
     n_repeats = kwargs['n_repeats']
     random_state = kwargs['random_state']
     onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
 
+    evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
+    drift_file = kwargs['drift_file']
+    
+    drift_df = pd.read_csv(os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, drift_file))
+    if drift_df.query('drift_detected').shape[0] > 0:
+        logging.info("Data drift detected. The model will be retrained with the new data.")
+    else:
+        logging.info("No data drift detected. The model will be  NOT retrained.")
+        return
+    
     # Load the preprocessed test data
-    X_test = pd.read_csv(os.path.join(curr_dir, os.pardir, test_X_file_path))
-    y_test = pd.read_csv(os.path.join(curr_dir, os.pardir, test_y_file_path))
+    X_test = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, test_X_file))
+    y_test = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, test_y_file))
 
     # Load the train model
     model = pickle.load(open(model_file_path,'rb'))
@@ -126,7 +137,14 @@ def evaluate(**kwargs):
 
         logging.info("The scores were logged.")
 
-        del(model, X_test, y_test, y_pred)  
+
+    del(model, X_test, y_test, y_pred) 
+
+    # Delete the test files
+    os.remove(os.path.join(curr_dir, os.pardir, data_folder, test_X_file))
+    os.remove(os.path.join(curr_dir, os.pardir, data_folder, test_y_file))
+    logging.info("Deleted files {} and {}.".format(test_X_file, test_y_file))  
+    
 
 # The evaluate.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['evaluate']
