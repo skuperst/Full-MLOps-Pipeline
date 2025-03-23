@@ -6,3 +6,4 @@ __pycache__/
 *.pyc
 /current_accuracy_dict.json
 research/*
+GOOGLE_APP_CREDENTIALS.json
