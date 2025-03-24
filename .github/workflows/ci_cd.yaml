@@ -1,52 +1,36 @@
-name: MLFlow Test
+name: Google Cloud Authentication Workflow
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  test_mlflow_secrets:
+  test_google_credentials:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
-      - name: Install MLFlow
+      # Step 2: Decode the base64-encoded credentials file and save it
+      - name: Decode Google credentials and set up
         run: |
-          pip install mlflow
-          pip install dagshub
+          echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /tmp/google-credentials.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json
 
-      - name: Print environment variables (for debugging)
+      # Step 3: Authenticate using the decoded credentials
+      - name: Authenticate with Google Cloud
         run: |
-          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}"
-          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}"
-          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}"
+          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+          gcloud config set project YOUR_PROJECT_ID  # Replace with your Google Cloud project ID
+          gcloud auth list  # Verify that the service account is authenticated
 
-      - name: Test MLFlow connection
+      # Step 4: Run any other command using Google Cloud SDK or MLFlow, for example
+      - name: Test Google Cloud SDK
         run: |
-          python -c "
-          import mlflow
-          import os
-
-          mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
-          mlflow.log_param('test_param', 'value')
-
-          # Try to log something to ensure the connection is working
-          print('MLFlow tracking URI set successfully')
-          "
-
-
-          # name: CI/CD
+          gcloud compute instances list  # Example command to verify authentication
 
 # on:
 #   push:
