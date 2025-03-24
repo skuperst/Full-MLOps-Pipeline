@@ -1,9 +1,6 @@
-.env
-my_env/
-/mlflow_experiment_name.yaml
-/evidently_htmls
+/.env
+/my_env/
+/evidently_htmls/*
 __pycache__/
-*.pyc
-/current_accuracy_dict.json
-research/*
+/research/
 GOOGLE_APP_CREDENTIALS.json
