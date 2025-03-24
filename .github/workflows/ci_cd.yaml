@@ -1,4 +1,52 @@
-# name: CI/CD
+name: MLFlow Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test_mlflow_secrets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install MLFlow
+        run: |
+          pip install mlflow
+          pip install dagshub
+
+      - name: Print environment variables (for debugging)
+        run: |
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}"
+          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}"
+          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}"
+
+      - name: Test MLFlow connection
+        run: |
+          python -c "
+          import mlflow
+          import os
+
+          mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
+          mlflow.log_param('test_param', 'value')
+
+          # Try to log something to ensure the connection is working
+          print('MLFlow tracking URI set successfully')
+          "
+
+
+          # name: CI/CD
 
 # on:
 #   push:
