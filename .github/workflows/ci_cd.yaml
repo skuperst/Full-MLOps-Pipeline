@@ -10,22 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the repository
+    # Step 1: Checkout repository
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Decode the Google credentials from the secret and set up
+    # Step 2: Decode the Google credentials from base64
     - name: Decode Google credentials from base64
       run: |
-        # Decode the base64-encoded Google credentials from GitHub Secrets
         echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /tmp/google-credentials.json
         
-        # Check if the file exists and has content
+        # Verify the decoded file exists
         ls -l /tmp/google-credentials.json
-        cat /tmp/google-credentials.json
-
-        # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
-        export GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json
+        cat /tmp/google-credentials.json  # Optional, can be removed in production for security
+        
+        # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable to the path
+        echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/google-credentials.json" >> $GITHUB_ENV
 
     # Step 3: Authenticate using the decoded credentials
     - name: Authenticate with Google Cloud
@@ -37,6 +36,7 @@ jobs:
     - name: Test Google Cloud SDK
       run: |
         gcloud compute instances list  # Example command
+
 
 # on:
 #   push:
