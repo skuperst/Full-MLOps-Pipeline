@@ -14,7 +14,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Decode the Google credentials from base64
+    # Step 2: Decode Google credentials from base64
     - name: Decode Google credentials from base64
       run: |
         echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /tmp/google-credentials.json
@@ -38,16 +38,23 @@ jobs:
       run: |
         PROJECT_ID=$(jq -r .project_id < /tmp/google-credentials.json)
         echo "CLOUDSDK_CORE_PROJECT=$PROJECT_ID" >> $GITHUB_ENV
+        echo "PROJECT_ID=$PROJECT_ID" >> $GITHUB_ENV  # This line ensures the project ID is available as a variable.
 
-    # Step 5: Enable the Compute Engine API
+    # Step 5: Set the project ID for gcloud
+    - name: Set project for gcloud
+      run: |
+        gcloud config set project $PROJECT_ID  # Explicitly set the project for gcloud
+
+    # Step 6: Enable the Compute Engine API
     - name: Enable Compute Engine API
       run: |
         gcloud services enable compute.googleapis.com --project=$PROJECT_ID
 
-    # Step 6: Test Google Cloud SDK
+    # Step 7: Test Google Cloud SDK
     - name: Test Google Cloud SDK
       run: |
         gcloud compute instances list  # Example command
+
 
 
 
