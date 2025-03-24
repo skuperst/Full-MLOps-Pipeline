@@ -11,7 +11,7 @@ stages:
   download_current_data:
     cmd: python ${download_current_data_script_file}
     deps: 
-      - ${download_current_data.data_folder}/${download_current_data_script_file}
+      - ${download_current_data_script_file}
     params:
       - download_current_data
     outs:
@@ -28,13 +28,14 @@ stages:
     outs:
     - ${preprocess.data_folder}/${preprocess.output_file}:
           cache: false
-    - ${preprocess.data_folder}/${preprocess.flask_dict_file_path}
-    - ${preprocess.data_folder}/${preprocess.onehot_name_dictionary_file_path}
+    - ${preprocess.data_folder}/${preprocess.flask_dict_file}
+    - ${preprocess.data_folder}/${preprocess.onehot_name_dictionary_file}
 
 
   evidentlyai:
     cmd: python ${evidentlyai_script_file}
     deps:
+    - ${evidentlyai_script_file}
     - ${evidentlyai.data_folder}/${evidentlyai.reference_data_file}
     - ${evidentlyai.data_folder}/${evidentlyai.current_data_file}
     params:
@@ -46,6 +47,7 @@ stages:
   merge_data:
     cmd: python ${merge_data_script_file}
     deps:
+    - ${merge_data_script_file}
     - ${merge_data.data_folder}/${merge_data.preprocessed_reference_data_file}
     - ${merge_data.data_folder}/${merge_data.preprocessed_current_data_file}
     params:
@@ -79,10 +81,10 @@ stages:
     params:
     - evaluate
 
+
   upload_predictions:
     cmd: python ${upload_predictions_script_file}
     deps:
-
     - ${upload_predictions_script_file}
     - ${upload_predictions.data_folder}/${upload_predictions.preprocessed_current_data_file}
     - ${upload_predictions.new_model_file_path}
@@ -91,3 +93,11 @@ stages:
     outs:
     - ${upload_predictions.data_folder}/${upload_predictions.preprocessed_current_data_with_predictions_file}:
           cache: false
+
+
+  cleanup:
+    cmd: python ${cleanup_script_file}
+    deps:
+    - ${cleanup_script_file}
+    params:
+    - cleanup

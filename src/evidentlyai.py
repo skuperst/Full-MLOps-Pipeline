@@ -145,7 +145,7 @@ def evidentlyai(**kwargs):
 
                 # Show a warning if drift detected
                 if drift_df.query('drift_detected').shape[0] > 0:
-                    logging.warning('Drift detected in column(s): {}'.format(', '.join(drift_df[drift_df['drift_detected']]['column_name'])))
+                    logging.warning('Drift detected in column(s): {} !'.format(', '.join(drift_df[drift_df['drift_detected']]['column_name'])))
         
         project.save()
 

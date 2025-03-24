@@ -33,23 +33,17 @@ stages:
   preprocess:
     cmd: python src/preprocess.py
     deps:
-    - path: data/modified_raw_data.csv
-      hash: md5
-      md5: c8fe161fde4dabc4d5c5d9388bf67766
-      size: 698805
-      isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: f3b231be026706de79303664de6d670d
-      size: 9000
+      md5: c05e4b6abd03b56b92307ebaaf69cadf
+      size: 7895
       isexec: true
     params:
       params.yaml:
         preprocess:
-          input_folder: data
-          input_file: modified_raw_data.csv
-          output_reference_data_file_path: data/preprocessed_reference_data.csv
-          output_current_data_file_path: data/preprocessed_current_data.csv
+          data_folder: data
+          input_file: raw_current_data.csv
+          output_file: preprocessed_current_data.csv
           rename_map:
             number_project: number_of_projects
             time_spend_company: time_spend_in_company
@@ -59,13 +53,12 @@ stages:
             Department: department
           prediction_column: left_or_not
           keep_duplicates: true
-          time_period_column_name: time_period
-          flask_dict_file_path: data/flask_dictionary.json
-          onehot_name_dictionary_file_path: data/onehot_name_dictionary.json
+          flask_dict_file: flask_dictionary.json
+          onehot_name_dictionary_file: onehot_name_dictionary.json
     outs:
     - path: data/flask_dictionary.json
       hash: md5
-      md5: 2de61b4af1b8fa139e25c067303a0f0b
+      md5: e0e6f4a9b43ceacdabaed84537e56137
       size: 1138
       isexec: true
     - path: data/onehot_name_dictionary.json
@@ -78,98 +71,94 @@ stages:
       md5: 29f808783f2903b9e175430c6779c023
       size: 146846
       isexec: true
-    - path: data/preprocessed_reference_data.csv
-      hash: md5
-      md5: d6d10026b1b08d19d878f6bb1769d70f
-      size: 1330569
-      isexec: true
   train:
     cmd: python src/train.py
     deps:
-    - path: data/preprocessed_reference_data.csv
+    - path: data/merged_data.csv
       hash: md5
-      md5: d6d10026b1b08d19d878f6bb1769d70f
-      size: 1330569
+      md5: d15d5ff5c16c5ebf2bfc6912a7dd2cd2
+      size: 1477038
       isexec: true
     - path: src/train.py
       hash: md5
-      md5: 03ad44432ed2d1f85031d0427c0e4175
-      size: 5921
+      md5: 4193a5507ec7925009819aaa2ac0cc59
+      size: 6429
       isexec: true
     params:
       params.yaml:
         train:
-          file_path: data/preprocessed_reference_data.csv
+          file: merged_data.csv
+          data_folder: data
           prediction_column: left_or_not
-          test_X_file_path: data/test_X.csv
-          test_y_file_path: data/test_y.csv
+          test_X_file: test_X.csv
+          test_y_file: test_y.csv
           random_state: 42
           cross_validations: 3
           max_depth:
           - 1
-          - 4
+          - 2
           - 1
           min_samples_split:
           - 4
-          - 13
+          - 5
           - 4
           n_estimators:
           - 20
-          - 61
+          - 21
           - 10
           learning_rate:
           - 0.8
           - 1.3
           - 0.2
-          model_file_path: models/model.pkl
+          new_model_file_path: models/new_model.pkl
+          evidently_htmls_folder_name: evidently_htmls
+          drift_file: drift_file.csv
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: 4ca9ac1c642d04c44a96ad6de320313d
-      size: 261160
+      md5: 8f854cae9d320e4ca50cfeb43cac8dfa
+      size: 289827
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: cbbbafebbe2b1eb88cc2b6fdc75d95b3
-      size: 5346
+      md5: 450bf0c907b7fba0b3360323a958a1ee
+      size: 5932
       isexec: true
-    - path: models/model.pkl
+    - path: models/new_model.pkl
       hash: md5
-      md5: ed9fa8adda80db8799387ed766689017
-      size: 69095
+      md5: 16714b89bb5ec2c93456499ce90cf154
+      size: 12820
       isexec: true
   evaluate:
     cmd: python src/evaluate.py
     deps:
-    - path: data/preprocessed_reference_data.csv
+    - path: data/test_X.csv
       hash: md5
-      md5: d6d10026b1b08d19d878f6bb1769d70f
-      size: 1330569
+      md5: 8f854cae9d320e4ca50cfeb43cac8dfa
+      size: 289827
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: cbbbafebbe2b1eb88cc2b6fdc75d95b3
-      size: 5346
-      isexec: true
-    - path: models/model.pkl
-      hash: md5
-      md5: ed9fa8adda80db8799387ed766689017
-      size: 69095
+      md5: 450bf0c907b7fba0b3360323a958a1ee
+      size: 5932
       isexec: true
     - path: src/evaluate.py
       hash: md5
-      md5: 61721ed48de37058811b3bbd3d58c3ff
-      size: 4973
+      md5: 3a6d461b952b5af5f9ccb94215a5a3b0
+      size: 5485
       isexec: true
     params:
       params.yaml:
         evaluate:
-          model_file_path: models/model.pkl
-          test_X_file_path: data/test_X.csv
-          test_y_file_path: data/test_y.csv
+          new_model_file_path: models/new_model.pkl
+          data_folder: data
+          test_X_file: test_X.csv
+          test_y_file: test_y.csv
           n_repeats: 10
           random_state: 42
-          onehot_name_dictionary_file_path: data/onehot_name_dictionary.json
+          evidently_htmls_folder_name: evidently_htmls
+          drift_file: drift_file.csv
+          onehot_name_dictionary_file: onehot_name_dictionary.json
   set_experiment_name:
     cmd: python src/set_experiment_name.py
     deps:
@@ -181,7 +170,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: f160b9e8513bcf7fcc0c676d75887f3a
+      md5: b59e761600f8b82732f6169fae3cda19
       size: 43
       isexec: true
   evidentlyai:
@@ -199,8 +188,8 @@ stages:
       isexec: true
     - path: src/evidentlyai.py
       hash: md5
-      md5: f9011fec70bcbe0cdbb7f155d3fb964b
-      size: 7581
+      md5: be428f2d832e10b3fe290fce49a74781
+      size: 6673
       isexec: true
     params:
       params.yaml:
@@ -208,22 +197,18 @@ stages:
           evidentlyai_url: https://app.evidently.cloud
           evidentlyai_project_name: Human Resources
           evidentlyai_project_description: Use AdaBoost to predict who left the company
-          reference_data_file_path: data/preprocessed_reference_data.csv
-          current_data_file_path: data/preprocessed_current_data.csv
-          model_file_path: models/model.pkl
+          data_folder: data
+          reference_data_file: preprocessed_reference_data.csv
+          current_data_file: preprocessed_current_data.csv
+          old_model_file_path: models/old_model.pkl
           prediction_column: left_or_not
           evidently_htmls_folder_name: evidently_htmls
-          current_accuracy_dict_file: current_accuracy_dict.json
+          drift_file: drift_file.csv
     outs:
-    - path: current_accuracy_dict.json
-      hash: md5
-      md5: 633ddce61e040c67347cdfbe76321ab7
-      size: 127
-      isexec: true
     - path: evidently_htmls
       hash: md5
-      md5: 30af76b5c3dbb9df5d31970f5a949444.dir
-      size: 9960240
+      md5: 3cd63b96b438fd6d8845b7c811a1dd2a.dir
+      size: 9946896
       nfiles: 4
   hugging_face_push:
     cmd: python src/hugging_face_push.py
@@ -250,3 +235,104 @@ stages:
           model_file_path: models/model.pkl
           current_accuracy_dict_file: current_accuracy_dict.json
           f1_threshold: 0.93
+  download_current_data:
+    cmd: python src/download_current_data.py
+    deps:
+    - path: src/download_current_data.py
+      hash: md5
+      md5: ebef2aa059734e58c6d262e2a205126e
+      size: 1718
+      isexec: true
+    params:
+      params.yaml:
+        download_current_data:
+          raw_current_data_file: raw_current_data.csv
+          data_folder: data
+    outs:
+    - path: data/raw_current_data.csv
+      hash: md5
+      md5: 493a15dabcc8bddca76a5aa39607c876
+      size: 56784
+      isexec: true
+  merge_data:
+    cmd: python src/merge_data.py
+    deps:
+    - path: data/preprocessed_current_data.csv
+      hash: md5
+      md5: 29f808783f2903b9e175430c6779c023
+      size: 146846
+      isexec: true
+    - path: data/preprocessed_reference_data.csv
+      hash: md5
+      md5: d6d10026b1b08d19d878f6bb1769d70f
+      size: 1330569
+      isexec: true
+    - path: src/merge_data.py
+      hash: md5
+      md5: 5c8004271104ac8f5402ce5ee3c67ca3
+      size: 1372
+      isexec: true
+    params:
+      params.yaml:
+        merge_data:
+          preprocessed_reference_data_file: preprocessed_reference_data.csv
+          preprocessed_current_data_file: preprocessed_current_data.csv
+          data_folder: data
+          merged_data_file: merged_data.csv
+    outs:
+    - path: data/merged_data.csv
+      hash: md5
+      md5: d15d5ff5c16c5ebf2bfc6912a7dd2cd2
+      size: 1477038
+      isexec: true
+  upload_predictions:
+    cmd: python src/upload_predictions.py
+    deps:
+    - path: data/preprocessed_current_data.csv
+      hash: md5
+      md5: 29f808783f2903b9e175430c6779c023
+      size: 146846
+      isexec: true
+    - path: models/new_model.pkl
+      hash: md5
+      md5: 16714b89bb5ec2c93456499ce90cf154
+      size: 12820
+      isexec: true
+    - path: src/upload_predictions.py
+      hash: md5
+      md5: ac253369e27e9c6e8442557d0a03f610
+      size: 2673
+      isexec: true
+    params:
+      params.yaml:
+        upload_predictions:
+          data_folder: data
+          preprocessed_current_data_file: preprocessed_current_data.csv
+          new_model_file_path: models/new_model.pkl
+          prediction_column: left_or_not
+          preprocessed_current_data_with_predictions_file: preprocessed_current_data_with_predictions.csv
+    outs:
+    - path: data/preprocessed_current_data_with_predictions.csv
+      hash: md5
+      md5: 22fa1252a776634876470928b727700f
+      size: 156024
+      isexec: true
+  cleanup:
+    cmd: python src/cleanup.py
+    deps:
+    - path: src/cleanup.py
+      hash: md5
+      md5: ba699456b7e111aab719c11e908a5457
+      size: 1411
+      isexec: true
+    params:
+      params.yaml:
+        cleanup:
+          new_model_file_path: models/new_model.pkl
+          data_folder: data
+          raw_current_data_file: raw_current_data.csv
+          merged_data_file: merged_data.csv
+          preprocessed_current_data_file: preprocessed_current_data.csv
+          preprocessed_current_data_with_predictions_file: preprocessed_current_data_with_predictions.csv
+          test_X_file: test_X.csv
+          test_y_file: test_y.csv

@@ -44,16 +44,16 @@ def evaluate(**kwargs):
     model_file_path = kwargs['new_model_file_path']
     n_repeats = kwargs['n_repeats']
     random_state = kwargs['random_state']
-    onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
+    onehot_name_dictionary_file = kwargs['onehot_name_dictionary_file']
 
     evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
     drift_file = kwargs['drift_file']
     
     drift_df = pd.read_csv(os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, drift_file))
     if drift_df.query('drift_detected').shape[0] > 0:
-        logging.info("Data drift detected. The model will be retrained with the new data.")
+        logging.info("Data drift detected. The retrained model will be re-evaluated.")
     else:
-        logging.info("No data drift detected. The model will be  NOT retrained.")
+        logging.info("No data drift detected. The model will be NOT re-evaluated.")
         return
     
     # Load the preprocessed test data
@@ -86,7 +86,7 @@ def evaluate(**kwargs):
                                     'STD':permutation_importance_output.importances_std})
     
     # Load the dictionary to restore the categorical column names before the one-hat was applied
-    onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, onehot_name_dictionary_file_path)))
+    onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, data_folder, onehot_name_dictionary_file)))
     # Use the dict to restore feature names (i.g. 'department_IT' back to 'department')
     importances_df['Feature'] = importances_df['Feature'].map(onehot_column_name_dictionary)
     # Group the features: sum for importnaces and volatilities
@@ -138,13 +138,7 @@ def evaluate(**kwargs):
         logging.info("The scores were logged.")
 
 
-    del(model, X_test, y_test, y_pred) 
-
-    # Delete the test files
-    os.remove(os.path.join(curr_dir, os.pardir, data_folder, test_X_file))
-    os.remove(os.path.join(curr_dir, os.pardir, data_folder, test_y_file))
-    logging.info("Deleted files {} and {}.".format(test_X_file, test_y_file))  
-    
+    del(model, X_test, y_test, y_pred)     
 
 # The evaluate.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['evaluate']

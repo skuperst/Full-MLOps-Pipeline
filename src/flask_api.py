@@ -20,10 +20,11 @@ logging.info('Done!')
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['flask_api']
 
+data_folder = params['data_folder']
 model_file_path = params['model_file_path']
 flask_dict_file_path = params['flask_dict_file_path']
-onehot_name_dictionary_file_path = params['onehot_name_dictionary_file_path']
-test_X_file_path = params['test_X_file_path']
+onehot_name_dictionary_file = params['onehot_name_dictionary_file']
+test_X_file = params['test_X_file']
 
 # Load the trained model
 model = pickle.load(open(model_file_path,'rb'))
@@ -31,14 +32,14 @@ model = pickle.load(open(model_file_path,'rb'))
 flask_dict = json.load(open(os.path.join(curr_dir, os.pardir, flask_dict_file_path)))
 
 # Load the dictionary saved earlier at the preprocess stage and containing the info regarding the get_dummies transformation
-onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, onehot_name_dictionary_file_path)))
+onehot_column_name_dictionary = json.load(open(os.path.join(curr_dir, os.pardir, data_folder, onehot_name_dictionary_file)))
 # Convert it to a panda's Series object
 onehot_column_name_series = pd.Series(onehot_column_name_dictionary)
 # Extract the categorical columns (they appear more than once in the series)
 categorical_columns = onehot_column_name_series.value_counts()[onehot_column_name_series.value_counts()>1].index
 
 # The full list of column in the test dataset. 
-test_dataset_columns = pd.read_csv(os.path.join(curr_dir, os.pardir, test_X_file_path), nrows=0).columns
+test_dataset_columns = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, test_X_file), nrows=0).columns
 
 app = Flask(__name__)
 

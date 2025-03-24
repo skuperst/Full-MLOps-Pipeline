@@ -25,9 +25,9 @@ preprocess:
   prediction_column: *prediction_column
   keep_duplicates: true                  # Should one keep the duplicate rows or not
   # The file with the dictionary used later on by Flask API to build the html template (needed only for the very first run)
-  flask_dict_file_path: &flask_dict_file_path "data/flask_dictionary.json"
+  flask_dict_file: &flask_dict_file "flask_dictionary.json"
   # The file with the dictionary for the column names one-hot transformation (needed only for the very first run)
-  onehot_name_dictionary_file_path: &onehot_name_dictionary_file_path "data/onehot_name_dictionary.json" 
+  onehot_name_dictionary_file: &onehot_name_dictionary_file "onehot_name_dictionary.json" 
 
 evidentlyai_script_file: src/evidentlyai.py
 
@@ -62,9 +62,9 @@ train:
   test_y_file: &test_y_file "test_y.csv"             
   random_state: 42
   cross_validations: 3
-  max_depth: [1, 4, 1]                                   # Hyperparameter ranges for the grid search
-  min_samples_split: [4, 13, 4] 
-  n_estimators: [20, 61, 10]
+  max_depth:  [1, 2, 1] #[1, 4, 1]                                   # Hyperparameter ranges for the grid search
+  min_samples_split: [4, 5, 4]  #[4, 13, 4] 
+  n_estimators: [20, 21, 10] #[20, 61, 10]
   learning_rate: [0.8, 1.3, 0.2]
   new_model_file_path: &new_model_file_path "models/new_model.pkl"     # The full path of the best training model
   evidently_htmls_folder_name: *evidently_htmls_folder_name
@@ -81,7 +81,7 @@ evaluate:
   random_state: 42
   evidently_htmls_folder_name: *evidently_htmls_folder_name
   drift_file: *drift_file
-  onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
+  onehot_name_dictionary_file: *onehot_name_dictionary_file
 
 
 upload_predictions_script_file: src/upload_predictions.py
@@ -94,20 +94,25 @@ upload_predictions:
   preprocessed_current_data_with_predictions_file: "preprocessed_current_data_with_predictions.csv"
 
 
-cleanup_script_file: src/upload_predictions.py
+cleanup_script_file: src/cleanup.py
 
 cleanup:
-  data_folder: *data_folder
-  preprocessed_current_data_file:  *output_file
   new_model_file_path: *new_model_file_path
-  prediction_column: *prediction_column
+  data_folder: *data_folder
+  raw_current_data_file: *raw_current_data_file
+  merged_data_file: *merged_data_file
+  preprocessed_current_data_file:  *output_file
   preprocessed_current_data_with_predictions_file: "preprocessed_current_data_with_predictions.csv"
+  test_X_file: *test_X_file
+  test_y_file: *test_y_file
 
-# flask_api:
-#   old_model_file_path: *old_model_file_path
-#   flask_dict_file_path: *flask_dict_file_path
-#   onehot_name_dictionary_file_path: *onehot_name_dictionary_file_path
-# #  test_X_file_path: *test_X_file_path
+
+flask_api:
+  data_folder: *data_folder
+  old_model_file_path: *old_model_file_path
+  flask_dict_file: *flask_dict_file
+  onehot_name_dictionary_file: *onehot_name_dictionary_file
+  test_X_file: *test_X_file
 
 # hugging_face_push_script_file: src/hugging_face_push.py
 

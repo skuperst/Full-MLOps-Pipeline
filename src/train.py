@@ -149,9 +149,6 @@ def train(**kwargs):
             
     del(best_model, X_train, y_train)
 
-    # Delete local current files unused in the rest of the pipeline 
-    os.remove(os.path.join(curr_dir, os.pardir, data_folder, os.path.join(curr_dir, os.pardir, data_folder, file)))
-    logging.info("Deleted file {}.".format(file))  
 
 # The train.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['train']

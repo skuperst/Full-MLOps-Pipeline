@@ -33,9 +33,9 @@ def preprocess(**kwargs):
     output_file = kwargs['output_file']
     keep_duplicates = kwargs['keep_duplicates']
     rename_map = kwargs['rename_map']
-#    prediction_column= kwargs['prediction_column']
-#    flask_dict_file_path = kwargs['flask_dict_file_path']
-    onehot_name_dictionary_file_path = kwargs['onehot_name_dictionary_file_path']
+    prediction_column= kwargs['prediction_column']
+    flask_dict_file = kwargs['flask_dict_file']
+    onehot_name_dictionary_file = kwargs['onehot_name_dictionary_file']
 
 
     # Initiate logging
@@ -69,32 +69,32 @@ def preprocess(**kwargs):
 
     # Already created at the very first step for reference data
     # Create and save a dictionary for the Flask API html template 
-    # try:
-    #     # Initiate the dictionary
-    #     flask_dict = dict()
-    #     for col, t in dict(Data.dtypes).items():
-    #         if col != prediction_column: # For all columns except the prediction column
-    #             # For each column there is a (sub)dictionary
-    #             flask_dict[col] = dict()
-    #             # The label is the column name with sapce and capitalised
-    #             flask_dict[col]['label'] = col.capitalize().replace('_', ' ')
-    #             # If the column is a string type or there are less than 11 options in the column, a dropdwon menu will be used
-    #             if Data[col].dtype == 'object' or Data[col].nunique()<=10:
-    #                 flask_dict[col]['type_of_input'] = "dropdown"
-    #                 flask_dict[col]['options'] = sorted(Data[col].unique().tolist())
-    #             # ... otherwise a value will be inserted
-    #             else:
-    #                 flask_dict[col]['type_of_input'] = "manual"
-    #                 # The range is a dictionary with the minimum and the maximum  
-    #                 flask_dict[col]['range'] = dict({'min': int(Data[col].min()), 'max': int(Data[col].max())})
-    #                 # The 'value' precision
-    #                 flask_dict[col]['precision'] = 10**(-int(Data[col].map(lambda x: len(str(x).split('.')[1])).max())) if t=='float' else 1
-    #     with open(os.path.join(curr_dir, os.pardir, flask_dict_file_path), 'w') as json_file:
-    #         json.dump(flask_dict, json_file)
-    #     logging.info("The column data used by Flask API was successfully created and saved.")
-    # except:
-    #     logging.error("The column data used by Flask API was not saved!")
-    #     sys.exit(1)
+    try:
+        # Initiate the dictionary
+        flask_dict = dict()
+        for col, t in dict(Data.dtypes).items():
+            if col != prediction_column: # For all columns except the prediction column
+                # For each column there is a (sub)dictionary
+                flask_dict[col] = dict()
+                # The label is the column name with sapce and capitalised
+                flask_dict[col]['label'] = col.capitalize().replace('_', ' ')
+                # If the column is a string type or there are less than 11 options in the column, a dropdwon menu will be used
+                if Data[col].dtype == 'object' or Data[col].nunique()<=10:
+                    flask_dict[col]['type_of_input'] = "dropdown"
+                    flask_dict[col]['options'] = sorted(Data[col].unique().tolist())
+                # ... otherwise a value will be inserted
+                else:
+                    flask_dict[col]['type_of_input'] = "manual"
+                    # The range is a dictionary with the minimum and the maximum  
+                    flask_dict[col]['range'] = dict({'min': int(Data[col].min()), 'max': int(Data[col].max())})
+                    # The 'value' precision
+                    flask_dict[col]['precision'] = 10**(-int(Data[col].map(lambda x: len(str(x).split('.')[1])).max())) if t=='float' else 1
+        with open(os.path.join(curr_dir, os.pardir, data_folder, flask_dict_file), 'w') as json_file:
+            json.dump(flask_dict, json_file)
+        logging.info("The column data used by Flask API was successfully created and saved.")
+    except:
+        logging.error("The column data used by Flask API was not saved!")
+        sys.exit(1)
 
     # Start an MLflow run
     with mlflow.start_run():
@@ -164,14 +164,14 @@ def preprocess(**kwargs):
         logging.info('No categorical columns detected. One-hot encoding is not applied.')
 
     # Already created at the very first step for reference data
-    # # Save the names dictionary which relates the columnns before and after pd.get_dummies
-    # try:
-    #     with open(os.path.join(curr_dir, os.pardir, onehot_name_dictionary_file_path), 'w') as json_file:
-    #         json.dump(onehot_name_dictionary, json_file)
-    #     logging.info("The column names dictionary was successfully saved.")
-    # except:
-    #     logging.error("The column names dictionary was not saved!")
-    #     sys.exit(1)
+    # Save the names dictionary which relates the columnns before and after pd.get_dummies
+    try:
+        with open(os.path.join(curr_dir, os.pardir, data_folder, onehot_name_dictionary_file), 'w') as json_file:
+            json.dump(onehot_name_dictionary, json_file)
+        logging.info("The column names dictionary was successfully saved.")
+    except:
+        logging.error("The column names dictionary was not saved!")
+        sys.exit(1)
 
     # Save the preprocessed reference file
     try:
@@ -181,9 +181,6 @@ def preprocess(**kwargs):
         logging.error("The preprocessed reference data CSV file was not saved!")
         sys.exit(1)
 
-    # Delete local current files unused in the rest of the pipeline 
-    os.remove(os.path.join(curr_dir, os.pardir, data_folder, os.path.join(curr_dir, os.pardir, data_folder, input_file)))
-    logging.info("Deleted file {}.".format(input_file))  
 
 # The preprocess.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['preprocess']

@@ -66,10 +66,6 @@ def upload_predictions(**kwargs):
         logging.error("Failed to upload preprocessed current data with predictions to Google bucket!")
         sys.exit(1)
 
-    # Delete local current files at the end of pipeline 
-    os.remove(os.path.join(curr_dir, os.pardir, data_folder, os.path.join(curr_dir, os.pardir, data_folder, preprocessed_current_data_file)))
-    os.remove(os.path.join(curr_dir, os.pardir, data_folder, os.path.join(curr_dir, os.pardir, data_folder, preprocessed_current_data_with_predictions_file)))
-    logging.info("Deleted files {} and {}.".format(preprocessed_current_data_file, preprocessed_current_data_with_predictions_file))  
 
 # The preprocess.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['upload_predictions']
