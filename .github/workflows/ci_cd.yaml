@@ -32,7 +32,17 @@ jobs:
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         gcloud auth list  # Verify the authentication
 
-    # Step 4: Run a sample command to check authentication
+    # Step 4: Extract project_id from the credentials file and set the project
+    - name: Extract project_id from credentials
+      id: extract_project_id
+      run: |
+        # Extract the project_id from the JSON file
+        PROJECT_ID=$(jq -r .project_id < /tmp/google-credentials.json)
+        
+        # Set the project_id as an environment variable
+        echo "CLOUDSDK_CORE_PROJECT=$PROJECT_ID" >> $GITHUB_ENV
+
+    # Step 5: Run a sample command to check authentication
     - name: Test Google Cloud SDK
       run: |
         gcloud compute instances list  # Example command
