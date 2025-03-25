@@ -32,9 +32,9 @@ def upload_predictions(**kwargs):
     preprocessed_current_data_with_predictions_file = kwargs["preprocessed_current_data_with_predictions_file"]
 
     if update_check:
-        logging.info('Initiating model training.')
+        logging.info('Uploading the preprocessed current data file with model predictions to the bucket..')
     else:
-        logging.info('No current data downloaded. Skipping training with tempty outputs.')
+        logging.info('No current data downloaded. Skipping upload.')
         # Create empty outs file
         Path(os.path.join(curr_dir, os.pardir, data_folder, preprocessed_current_data_with_predictions_file)).touch()     
         exit()

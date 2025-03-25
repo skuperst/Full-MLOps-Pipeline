@@ -7,6 +7,7 @@ import yaml, sys
 import os, csv, io
 from google.cloud import storage
 from dotenv import load_dotenv 
+from pathlib import Path
 
 logging.info('Done!')
 
@@ -32,10 +33,17 @@ def download_current_data(**kwargs):
 
         # File path to save the raw current data
         file_path = os.path.join(curr_dir, os.pardir, data_folder, raw_current_data_file)
-        csv.writer(open(file_path, 'w', newline='', encoding='utf-8')).writerows(csv.reader(io.StringIO(bucket.blob(raw_current_data_file).download_as_text())))
 
-        logging.info("Raw current data was successfully downloaded from Google bucket.")
-
+        # Check whether there is a new (current) file called raw_current_data_file ('raw_current_data.csv')
+        if raw_current_data_file in [b.name for b in bucket.list_blobs()]:
+            csv.writer(open(file_path, 'w', newline='', encoding='utf-8')).writerows(
+                csv.reader(io.StringIO(bucket.blob(raw_current_data_file).download_as_text())))
+            logging.info("Raw current data was successfully downloaded from the Google Storage bucket.")
+        else:
+            # If none, create an empty file
+            Path(file_path).touch()
+            logging.info("No current data in the Google Storage bucket. Created an empty data file.")
+        
     except:
         logging.error("Failed to download raw current data from Google bucket!")
         sys.exit(1)
