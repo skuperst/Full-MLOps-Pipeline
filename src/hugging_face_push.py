@@ -28,17 +28,21 @@ if os.path.join(curr_dir, os.pardir, new_model_file_path):
         load_dotenv(override=True)
         login(os.getenv("HF_GITHUB_ACTIONS_TOKEN"))
         api = HfApi()
-
-        api.upload_file(
+        logging.info("Connected to Hugging Face.")
+    except:
+        logging.error("Couldn't connectto Hugging Face!")
+        sys.exit(1)
+    try:
+      api.upload_file(
             path_or_fileobj=new_model_file_path,
             path_in_repo=new_model_file_path.split('/')[-1],
             repo_id=hf_repo_id,
             repo_type="model",
             commit_message='The latest model ()'.format(datetime.now().strftime("%Y/%m/%d (%H:%M)")))
-
-        logging.info("The model was successfully deployed to Hugging Face.")
+      logging.info("The model was successfully deployed to Hugging Face.")
     except:
-            logging.error("Couldn't deploy the model to Hugging Face!")
-            sys.exit(1)
+        logging.error("Couldn't deploy the model to Hugging Face!")
+        sys.exit(1)
+
 else:
     logging.info("There is no new model to upload to Hugging Face.") 
