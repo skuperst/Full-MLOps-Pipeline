@@ -6,7 +6,7 @@ mlflow_experiment_name_file_path: "mlflow_experiment_name.yaml"
 download_current_data_script_file: src/download_current_data.py
 
 download_current_data:
-  raw_current_data_file:  &raw_current_data_file "raw_current_data.csv" # File name of the raw current data in the bucket and in data_folder
+  raw_current_data_file:  &raw_current_data_file "raw_current_data.csv" # File name of the raw current data in the bucket AND in data_folder
   data_folder: &data_folder "data"
 
 preprocess_script_file: src/preprocess.py
@@ -105,6 +105,7 @@ cleanup:
   preprocessed_current_data_with_predictions_file: "preprocessed_current_data_with_predictions.csv"
   test_X_file: *test_X_file
   test_y_file: *test_y_file
+  evidently_htmls_folder_name: *evidently_htmls_folder_name
 
 
 flask_api:

@@ -1,0 +1,6 @@
+outs:
+- md5: b82da1ddc0383342f6c9d8812a2b16ab
+  size: 784
+  isexec: true
+  hash: md5
+  path: onehot_name_dictionary.json

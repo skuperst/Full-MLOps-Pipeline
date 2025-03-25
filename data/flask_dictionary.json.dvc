@@ -1,0 +1,6 @@
+outs:
+- md5: 2de61b4af1b8fa139e25c067303a0f0b
+  size: 1138
+  isexec: true
+  hash: md5
+  path: flask_dictionary.json

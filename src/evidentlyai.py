@@ -1,37 +1,37 @@
-import logging
+import logging, os, yaml
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
 
 from utils.update_check_utils import update_check
 
-if update_check():
-    logging.info('Initializing EvidentlyAI analysis.')
+update_check = update_check()
+if update_check:
+
+    # If there is an update load the heavy Python libraries 
+    logging.info('Loading Python libraries ...')
+
+    import sys
+    import pickle
+    from dotenv import load_dotenv
+
+    from evidently.ui.workspace.cloud import CloudWorkspace
+    from evidently.pipeline.column_mapping import ColumnMapping
+    from evidently.report import Report
+    from evidently.metric_preset import DataQualityPreset, DataDriftPreset, ClassificationPreset
+
+    import pandas as pd
+
+    import mlflow
+
+    from utils.mlflow_utils import configure_mlflow
+
+    from datetime import datetime
+
+    logging.info('Done!')
+
 else:
-    logging.info('No current data downloaded. Skipping EvidentlyAI.')
-    exit()
+    from pathlib import Path
 
-# If there is an update load the heavy Python libraries 
-logging.info('Loading Python libraries ...')
-
-import os, yaml
-import sys
-import pickle
-from dotenv import load_dotenv
-
-from evidently.ui.workspace.cloud import CloudWorkspace
-from evidently.pipeline.column_mapping import ColumnMapping
-from evidently.report import Report
-from evidently.metric_preset import DataQualityPreset, DataDriftPreset, ClassificationPreset
-
-import pandas as pd
-
-import mlflow
-
-from utils.mlflow_utils import configure_mlflow
-
-from datetime import datetime
-
-logging.info('Done!')
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +51,20 @@ def evidentlyai(**kwargs):
     prediction_column = kwargs['prediction_column']
     evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
     drift_file = kwargs['drift_file']
+
+    # File path to save the html version of the report
+    html_folder_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name)
+    # Ensure the EvidentlyAI html folder exists
+    if not os.path.exists(html_folder_path):
+        os.makedirs(html_folder_path)
+        logging.info("Created the html-files folder.")
+
+    if update_check:
+        logging.info('Initializing EvidentlyAI analysis.')
+    else:
+        Path(os.path.join(html_folder_path, 'empty_report.html')).touch()
+        logging.info('No current data downloaded. Skipping EvidentlyAI.')
+        exit()
 
     configure_mlflow()
     
@@ -73,12 +87,6 @@ def evidentlyai(**kwargs):
         logging.error("The connection to the EvidentlyAI API could not be established!")
         sys.exit(1)
             
-    # File path to save the html version of the report
-    html_folder_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name)
-    # Ensure the EvidentlyAI html folder exists
-    if not os.path.exists(html_folder_path):
-        os.makedirs(html_folder_path)
-        logging.info("Created the html-files folder.")
 
     # Load CURRENT and REFERENCE datasets
     reference_data = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, reference_data_file))
@@ -127,7 +135,7 @@ def evidentlyai(**kwargs):
                 sys.exit(1)
                 
             # File path to save the html version of the report
-            html_file_path = os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, '{}.html'.format(metric_name))
+            html_file_path = os.path.join(html_folder_path, '{}.html'.format(metric_name))
             # Save this report
             report.save_html(html_file_path)
         

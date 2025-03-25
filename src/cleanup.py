@@ -20,6 +20,7 @@ def cleanup(**kwargs):
     test_y_file = kwargs['test_y_file']
     preprocessed_current_data_with_predictions_file = kwargs['preprocessed_current_data_with_predictions_file']
     preprocessed_current_data_file=kwargs['preprocessed_current_data_file']
+    evidently_htmls_folder_name=kwargs['evidently_htmls_folder_name']
 
     # Delete local current files at the end of pipeline
     for f in [raw_current_data_file, merged_data_file, 
@@ -30,6 +31,12 @@ def cleanup(**kwargs):
             logging.info("Deleted file {}.".format(f))
         else:
             logging.info("File {} was scheduled for deletion, but it does not exist.".format(f))
+
+    for filename in os.listdir(evidently_htmls_folder_name):
+        file_path = os.path.join(evidently_htmls_folder_name, filename)
+        if os.path.isfile(file_path): 
+            os.remove(file_path) 
+    logging.info("Deleted the content of folder {}.".format(evidently_htmls_folder_name))
 
 # The cleanup.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['cleanup']
