@@ -22,7 +22,7 @@ hf_repo_id = params['hf_repo_id']
 # The model trained at train.py
 new_model_file_path = params['new_model_file_path']
 
-if os.path.join(curr_dir, os.pardir, new_model_file_path):
+if os.path.exists(os.path.join(curr_dir, os.pardir, new_model_file_path)):
     try:
         # Access .env file
         load_dotenv(override=True)
@@ -30,7 +30,7 @@ if os.path.join(curr_dir, os.pardir, new_model_file_path):
         api = HfApi()
         logging.info("Connected to Hugging Face.")
     except:
-        logging.error("Couldn't connectto Hugging Face!")
+        logging.error("Couldn't connectb to Hugging Face!")
         sys.exit(1)
     try:
       api.upload_file(
