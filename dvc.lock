@@ -121,7 +121,7 @@ stages:
       isexec: true
     - path: models/new_model.pkl
       hash: md5
-      md5: 284eea115767fea2c194fc6971469308
+      md5: 2b2bc5c0bfd66f28307d8383edaffb77
       size: 12820
       isexec: true
   evaluate:
@@ -165,7 +165,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 0e062ae953d29ffa24711372ff92f979
+      md5: 78711636c797bb8cffe6a8a12932e6fa
       size: 45
       isexec: true
   evidentlyai:
@@ -284,7 +284,7 @@ stages:
       isexec: true
     - path: models/new_model.pkl
       hash: md5
-      md5: 284eea115767fea2c194fc6971469308
+      md5: 2b2bc5c0bfd66f28307d8383edaffb77
       size: 12820
       isexec: true
     - path: src/upload_predictions.py

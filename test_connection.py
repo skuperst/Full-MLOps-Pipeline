@@ -1,22 +1,33 @@
+import logging
+# Initiate logging
+logging.basicConfig(level=logging.INFO)
+
 import os
-from google.cloud import storage
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
+from evidently.ui.workspace.cloud import CloudWorkspace
+from evidently.pipeline.column_mapping import ColumnMapping
+from evidently.report import Report
+from evidently.metric_preset import DataQualityPreset, DataDriftPreset, ClassificationPreset
 
-# Retrieve environment variables
-bucket_name = os.getenv('BUCKET_NAME')
-credentials_path = os.path.join(os.environ['HOME'], 'google-credentials.json')
 
-# Set up the Google Cloud Storage client
-client = storage.Client.from_service_account_json(credentials_path)
+# Current directory
+curr_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Connect to the bucket and list the blobs
-bucket = client.get_bucket(bucket_name)
-blobs = list(bucket.list_blobs())
-print(f'Connected to {bucket_name}. Blobs in the bucket:')
+evidentlyai_url = "https://app.evidently.cloud"
+evidentlyai_project_name = "Human Resources"
+evidentlyai_project_description = "Use AdaBoost to predict who left the company"
 
-# Print all blob names
-for blob in blobs:
-    print(blob.name)
+# Load the .env file
+load_dotenv(override=True)
+# Access the variables
+EVIDENTLY_TOKEN = os.getenv("EVIDENTLY_TOKEN")
+EVIDENTLY_PROJECT_ID = os.getenv("EVIDENTLY_PROJECT_ID")
+ws = CloudWorkspace(token=EVIDENTLY_TOKEN, url=evidentlyai_url)  
+# Create the project if doesn't already exists (meaning that EVIDENTLY_PROJECT_ID is empty)
+if (EVIDENTLY_PROJECT_ID is None):
+    project = ws.create_project(evidentlyai_project_name)
+    project.description = evidentlyai_project_description
+    project.save()
+else:        
+    project = ws.get_project(EVIDENTLY_PROJECT_ID)

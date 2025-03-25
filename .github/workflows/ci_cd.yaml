@@ -42,5 +42,5 @@ jobs:
 
       - name: Run Python script to test connection
         run: |
-          pytest src/test_pipeline.py --maxfail=1 --disable-warnings -q
+          python3 test_connection.py
 

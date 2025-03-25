@@ -15,6 +15,6 @@ def test_dvc_repro():
     shutil.copy(os.path.join(curr_dir, os.pardir, data_folder, 'test_data.csv'), 
                 os.path.join(curr_dir, os.pardir, data_folder, raw_current_data_file))
 
-    result = subprocess.run(["dvc", "repro", "--force"], capture_output=True, text=True)
+    result = subprocess.run(["dvc", "repro", "--force"], stdout=None, stderr=None, text=True)
 
     assert result.returncode == 0
