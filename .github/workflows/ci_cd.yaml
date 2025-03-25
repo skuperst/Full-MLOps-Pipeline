@@ -134,7 +134,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install python-dotenv huggingface_hub pyyaml
+          pip install -r requirements.txt
 
       - name: Set DagsHub environment variables
         run: |
