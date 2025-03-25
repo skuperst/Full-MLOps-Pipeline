@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+  pull_request:
+  schedule:
+    - cron: "*/10 * * * *"  # Retraining runs every 10 mins
+  workflow_dispatch:  # Allows manual trigger
 
 jobs:
 
@@ -55,7 +59,7 @@ jobs:
 
   retrain:
 
-    needs: test_pipeline
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[retrain]')
 
     runs-on: ubuntu-latest
 
@@ -116,7 +120,9 @@ jobs:
 
   deploy:
     
-    needs: retrain
+    needs: [test_pipeline, retrain]  # This job depends on pytest and retrain jobs to succeed
+
+    if: success()                    # Ensures deploy only runs if test_pipeline and retrain jobs are successful
 
     runs-on: ubuntu-latest
 
@@ -134,6 +140,22 @@ jobs:
           python -m pip install --upgrade pip          
           pip install python-dotenv huggingface_hub pyyaml
 
+      - name: Set DagsHub environment variables
+        run: |
+          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
+          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env     
+
+      - name: Set up DVC remote with DagsHub credentials
+        run: |
+          dvc remote add -d myremote https://dagshub.com/skuperst/Full-MLOps-Pipeline.dvc
+          dvc remote modify myremote --local auth basic
+          dvc remote modify myremote --local user ${{ secrets.DAGSHUB_USER_NAME }}
+          dvc remote modify myremote --local password ${{ secrets.DAGSHUB_PASSWORD }}
+
+      - name: Pull all data from DVC remote (DagsHub)
+        run: |
+          dvc pull models/
+            
       - name: Set Hugging Face environment variable(s)
         run: |
           echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
