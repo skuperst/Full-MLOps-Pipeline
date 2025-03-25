@@ -40,7 +40,7 @@ jobs:
           echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
           echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env        
 
-      - name: Run Python script to test connection
+      - name: Run Python script to test pipeline
         run: |
-          python3 test_connection.py
+          dvc repro
 
