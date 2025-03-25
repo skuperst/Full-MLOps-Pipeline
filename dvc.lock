@@ -35,8 +35,8 @@ stages:
     deps:
     - path: data/raw_current_data.csv
       hash: md5
-      md5: 9bb622127511c982776eec2f40b98749
-      size: 7563
+      md5: 493a15dabcc8bddca76a5aa39607c876
+      size: 56784
       isexec: true
     - path: src/preprocess.py
       hash: md5
@@ -63,16 +63,16 @@ stages:
     outs:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 9fd72fc1cb9225d9ca0f53caf70b2a82
-      size: 19838
+      md5: 29f808783f2903b9e175430c6779c023
+      size: 146846
       isexec: true
   train:
     cmd: python src/train.py
     deps:
     - path: data/merged_data.csv
       hash: md5
-      md5: c2bd8d6e010edeec54687523ebe07fff
-      size: 1350030
+      md5: d15d5ff5c16c5ebf2bfc6912a7dd2cd2
+      size: 1477038
       isexec: true
     - path: src/train.py
       hash: md5
@@ -91,15 +91,15 @@ stages:
           cross_validations: 3
           max_depth:
           - 1
-          - 2
+          - 4
           - 1
           min_samples_split:
           - 4
-          - 5
+          - 13
           - 4
           n_estimators:
           - 20
-          - 21
+          - 61
           - 10
           learning_rate:
           - 0.8
@@ -111,31 +111,31 @@ stages:
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: 036014f40308139f442f55828eb53721
-      size: 264947
+      md5: 8f854cae9d320e4ca50cfeb43cac8dfa
+      size: 289827
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 17670965a710be9c539e1e7b68251fc1
-      size: 5424
+      md5: 450bf0c907b7fba0b3360323a958a1ee
+      size: 5932
       isexec: true
     - path: models/new_model.pkl
       hash: md5
-      md5: dcddc675867065a72e13129ca291b00e
-      size: 12820
+      md5: 468290cd118718b9d9b958d1a80299c2
+      size: 77735
       isexec: true
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/test_X.csv
       hash: md5
-      md5: 036014f40308139f442f55828eb53721
-      size: 264947
+      md5: 8f854cae9d320e4ca50cfeb43cac8dfa
+      size: 289827
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 17670965a710be9c539e1e7b68251fc1
-      size: 5424
+      md5: 450bf0c907b7fba0b3360323a958a1ee
+      size: 5932
       isexec: true
     - path: src/evaluate.py
       hash: md5
@@ -165,7 +165,7 @@ stages:
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: 7c20f9f7c501d429e318c13d530da561
+      md5: 9ed00207d0f07ee30dd7deef4bbd78a2
       size: 45
       isexec: true
   evidentlyai:
@@ -173,8 +173,8 @@ stages:
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 9fd72fc1cb9225d9ca0f53caf70b2a82
-      size: 19838
+      md5: 29f808783f2903b9e175430c6779c023
+      size: 146846
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
@@ -207,8 +207,8 @@ stages:
     outs:
     - path: evidently_htmls
       hash: md5
-      md5: f7b3b4e8d83e34b39cfafab6eb7a4f6d.dir
-      size: 9922021
+      md5: 3cd4fc9304a483297acacafb4a81f326.dir
+      size: 9946896
       nfiles: 4
   hugging_face_push:
     cmd: python src/hugging_face_push.py
@@ -259,8 +259,8 @@ stages:
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 9fd72fc1cb9225d9ca0f53caf70b2a82
-      size: 19838
+      md5: 29f808783f2903b9e175430c6779c023
+      size: 146846
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
@@ -282,21 +282,21 @@ stages:
     outs:
     - path: data/merged_data.csv
       hash: md5
-      md5: c2bd8d6e010edeec54687523ebe07fff
-      size: 1350030
+      md5: d15d5ff5c16c5ebf2bfc6912a7dd2cd2
+      size: 1477038
       isexec: true
   upload_predictions:
     cmd: python src/upload_predictions.py
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 9fd72fc1cb9225d9ca0f53caf70b2a82
-      size: 19838
+      md5: 29f808783f2903b9e175430c6779c023
+      size: 146846
       isexec: true
     - path: models/new_model.pkl
       hash: md5
-      md5: dcddc675867065a72e13129ca291b00e
-      size: 12820
+      md5: 468290cd118718b9d9b958d1a80299c2
+      size: 77735
       isexec: true
     - path: src/upload_predictions.py
       hash: md5
@@ -314,8 +314,8 @@ stages:
     outs:
     - path: data/preprocessed_current_data_with_predictions.csv
       hash: md5
-      md5: b7099f481d9e27225e5c8ad1666e96b1
-      size: 20910
+      md5: 5044ca1aecb921d0a5227468d31d56d3
+      size: 156024
       isexec: true
   cleanup:
     cmd: python src/cleanup.py

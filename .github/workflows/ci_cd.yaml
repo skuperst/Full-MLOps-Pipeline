@@ -5,8 +5,8 @@ on:
     branches:
       - main
   pull_request:
-  schedule:
-    - cron: "*/10 * * * *"  # Retraining runs every 10 minutes
+  # schedule:
+  #   - cron: "*/10 * * * *"  # Retraining runs every 10 minutes
   workflow_dispatch:  # Allows manual trigger
 
 jobs:
