@@ -115,12 +115,12 @@ flask_api:
   onehot_name_dictionary_file: *onehot_name_dictionary_file
   test_X_file: *test_X_file
 
-# hugging_face_push_script_file: src/hugging_face_push.py
+hugging_face_push_script_file: src/hugging_face_push.py
 
-# hugging_face_push:
-#   hf_repo_id: "skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors"
-#   new_model_file_path: *new_model_file_path
-#   f1_threshold: 0.93 # The minimal value of tte CURRENT f1-score for model to be deployed 
+hugging_face_push:
+  hf_repo_id: "skuperst/Predicting_Employee_Turnover_at_Sailsfort_Motors"
+  new_model_file_path: *new_model_file_path
+
 
 
 #integration:
