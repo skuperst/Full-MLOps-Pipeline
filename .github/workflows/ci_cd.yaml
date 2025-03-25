@@ -43,7 +43,7 @@ jobs:
 
       - name: Set up DVC remote with DagsHub credentials
         run: |
-          dvc remote add -d myremote https://dagshub.com/<your-username>/<your-repo>.dvc
+          dvc remote add -d myremote https://dagshub.com/skuperst/Full-MLOps-Pipeline.dvc
           dvc remote modify myremote --local auth basic
           dvc remote modify myremote --local user ${{ secrets.DAGSHUB_USER_NAME }}
           dvc remote modify myremote --local password ${{ secrets.DAGSHUB_PASSWORD }}
