@@ -1,117 +1,46 @@
-name: Test Google Cloud Bucket Connection
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  test-connection:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install google-cloud-storage python-dotenv
-
-      - name: Decode Google Credentials
-        run: |
-          echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /home/runner/google-credentials.json
-
-      - name: Set GOOGLE_APPLICATION_CREDENTIALS environment variable
-        run: |
-          echo "GOOGLE_APPLICATION_CREDENTIALS=/home/runner/google-credentials.json" >> $GITHUB_ENV
-
-      - name: Set BUCKET_NAME environment variable
-        run: |
-          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
-
-      - name: Run Python script to test connection
-        run: |
-          python ./test_connection.py
-
+# name: Test Google Cloud Bucket Connection
 
 # on:
 #   push:
 #     branches:
-#       - main  # Trigger the workflow on push to the main branch
-#   workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+#       - main
 
 # jobs:
-#   Create_Run_Deploy:
-#     runs-on: ubuntu-latest  # Use the latest Ubuntu runner for the workflow
-
+#   test-connection:
+#     runs-on: ubuntu-latest
+    
 #     steps:
-#       # Checkout the code from GitHub repository
-#       - name: Checkout code
-#         uses: actions/checkout@v2  # Pulls the code from the repository
-
-#       # Set up Python environment
+#       - name: Checkout repository
+#         uses: actions/checkout@v2
+        
 #       - name: Set up Python
-#         uses: actions/setup-python@v2  # Sets up Python for the workflow
+#         uses: actions/setup-python@v2
 #         with:
-#           python-version: '3.9'  # Specifies the Python version to use
+#           python-version: '3.x'
 
-#       # Install dependencies from requirements.txt
 #       - name: Install dependencies
 #         run: |
-#           echo "Installing libraries ..."  
-#           pip install -r requirements.txt  
+#           python -m pip install --upgrade pip
+#           pip install -r requirements.txt
 
-#       - name: Create .env file dynamically
+#       - name: Decode Google Credentials
 #         run: |
-#           echo "Creating .env file..."
+#           echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /home/runner/google-credentials.json
 
+#       - name: Set GOOGLE_APPLICATION_CREDENTIALS environment variable
+#         run: |
+#           echo "GOOGLE_APPLICATION_CREDENTIALS=/home/runner/google-credentials.json" >> $GITHUB_ENV
+
+#       - name: Set other environment variables
+#         run: |
+#           echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
 #           echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
 #           echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
 #           echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
 #           echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
-#           echo "KAGGLE_KEY=${{ secrets.KAGGLE_KEY }}" >> .env
-#           echo "KAGGLE_USERNAME=${{ secrets.KAGGLE_USERNAME }}" >> .env
-#           echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
-#           echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
+#           echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env        
 
-#           echo ".env file created."
-
-#       - name: Create the dataset
+#       - name: Run Python script to test connection
 #         run: |
-#           echo 'Creating a raw dataset using the Kaggle API ...'
-#           python src/create_dataset.py
-          
-#       # Force DVC repro to re-run all of the existing steps
-#       - name: Run the full DVC pipeline
-#         run: |
-#           echo 'Starting the DVC pipeline ...'
-#           dvc repro -f
+#           python ./test_connection.py
 
-#       # Install jq (for parsing JSON)
-#       - name: Install jq
-#         run: sudo apt-get install -y jq
-
-#       # Read Accuracy from JSON and set as environment variable
-#       - name: Read Accuracy from JSON
-#         id: read_accuracy
-#         run: |
-#           # Read the Accuracy value from current_accuracy_dict.json
-#           accuracy=$(jq '.Accuracy' current_accuracy_dict.json)
-#           echo "Accuracy value: $accuracy"
-#           # Set the Accuracy value as an environment variable
-#           echo "ACCURACY=$accuracy" >> $GITHUB_ENV
-
-#       # Conditionally run Python scripts if Accuracy is below 0.98
-#       - name: Run training and evaluation if Accuracy < 0.98
-#         if: ${{ env.ACCURACY < 0.98 }}
-#         run: |
-#           echo "Accuracy is below 0.98. Running training and evaluation scripts..."
-#           python src/integration.py
-#           python src/train.py
-#           python src/evaluate.py

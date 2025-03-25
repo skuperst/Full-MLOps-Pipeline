@@ -16,3 +16,4 @@ evidently
 flask
 #huggingface_hub 
 google-cloud-storage
+pytest
