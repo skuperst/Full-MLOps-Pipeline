@@ -150,7 +150,7 @@ jobs:
 
       - name: Pull all data from DVC remote (DagsHub)
         run: |
-          dvc pull models/
+          dvc pull models/new_model.pkl
 
       - name: Set Hugging Face environment variable(s)
         run: |
