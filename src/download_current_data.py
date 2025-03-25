@@ -40,7 +40,7 @@ def download_current_data(**kwargs):
         logging.error("Failed to download raw current data from Google bucket!")
         sys.exit(1)
 
-# The preprocess.py parameters from the params.yaml file
+# The download_current_data.py parameters from the params.yaml file
 params = yaml.safe_load(open(os.path.join(curr_dir, os.pardir, "params.yaml")))['download_current_data']
 
 if __name__ == "__main__":

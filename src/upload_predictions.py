@@ -1,16 +1,24 @@
-import logging
+import logging, os, yaml
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
-logging.info('Loading Python libraries ...')
 
-import yaml, sys
-import os, csv, io
-from google.cloud import storage
-from dotenv import load_dotenv
-import pickle
-import pandas as pd 
+from utils.update_check_utils import update_check
 
-logging.info('Done!')
+update_check = update_check()
+if update_check:
+
+    # If there is an update load the heavy Python libraries 
+    logging.info('Loading Python libraries ...')
+
+    import sys
+    from google.cloud import storage
+    from dotenv import load_dotenv
+    import pickle
+    import pandas as pd 
+    
+    logging.info('Done!')
+else:
+    from pathlib import Path    
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,6 +31,14 @@ def upload_predictions(**kwargs):
     prediction_column = kwargs['prediction_column']
     preprocessed_current_data_with_predictions_file = kwargs["preprocessed_current_data_with_predictions_file"]
 
+    if update_check:
+        logging.info('Initiating model training.')
+    else:
+        logging.info('No current data downloaded. Skipping training with tempty outputs.')
+        # Create empty outs file
+        Path(os.path.join(curr_dir, os.pardir, data_folder, preprocessed_current_data_with_predictions_file)).touch()     
+        exit()
+        
     # Load the train model
     model = pickle.load(open(model_file_path,'rb'))
 

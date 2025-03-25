@@ -8,28 +8,29 @@ stages:
     - ${mlflow_experiment_name_file_path}
 
 
-  download_current_data:
-    cmd: python ${download_current_data_script_file}
-    deps: 
-      - ${download_current_data_script_file}
-    params:
-      - download_current_data
-    outs:
-      - ${download_current_data.data_folder}/${download_current_data.raw_current_data_file}:
-          cache: false
+  # # download_current_data:
+  # #   cmd: python ${download_current_data_script_file}
+  # #   deps: 
+  # #     - ${download_current_data_script_file}
+  # #   params:
+  # #     - download_current_data
+  # #   outs:
+  # #     - ${download_current_data.data_folder}/${download_current_data.raw_current_data_file}:
+  # #         cache: false  # Don't store in DVC cache
 
 
   preprocess:
     cmd: python ${preprocess_script_file}
     deps:
-    - ${preprocess_script_file}
+      - ${preprocess_script_file}
+      - ${preprocess.data_folder}/${preprocess.input_file}
     params:
-    - preprocess 
+      - preprocess
     outs:
-    - ${preprocess.data_folder}/${preprocess.output_file}:
-          cache: false
-    - ${preprocess.data_folder}/${preprocess.flask_dict_file}
-    - ${preprocess.data_folder}/${preprocess.onehot_name_dictionary_file}
+      - ${preprocess.data_folder}/${preprocess.output_file}:
+          cache: false  # Don't store in DVC cache
+    # - ${preprocess.data_folder}/${preprocess.flask_dict_file}
+    # - ${preprocess.data_folder}/${preprocess.onehot_name_dictionary_file}
 
 
   evidentlyai:
@@ -40,8 +41,8 @@ stages:
     - ${evidentlyai.data_folder}/${evidentlyai.current_data_file}
     params:
     - evidentlyai
-    outs:
-    - ${evidentlyai.evidently_htmls_folder_name}
+    # outs:
+    # - ${evidentlyai.evidently_htmls_folder_name}
 
 
   merge_data:
@@ -54,7 +55,7 @@ stages:
     - merge_data
     outs:
     - ${merge_data.data_folder}/${merge_data.merged_data_file}:
-          cache: false
+          cache: false  # Don't store in DVC cache
 
 
   train:
@@ -92,12 +93,13 @@ stages:
     - upload_predictions
     outs:
     - ${upload_predictions.data_folder}/${upload_predictions.preprocessed_current_data_with_predictions_file}:
-          cache: false
+          cache: false  # Don't store in DVC cache
 
 
   cleanup:
     cmd: python ${cleanup_script_file}
     deps:
     - ${cleanup_script_file}
+    - dummy_file.txt
     params:
     - cleanup

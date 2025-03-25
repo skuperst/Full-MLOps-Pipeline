@@ -1,13 +1,20 @@
-import logging
+import logging, os, yaml
+from pathlib import Path
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
-logging.info('Loading Python libraries ...')
 
-import yaml, sys
-import os
-import pandas as pd
+from utils.update_check_utils import update_check
 
-logging.info('Done!')
+update_check = update_check()
+if update_check:
+
+    # If there is an update load the heavy Python libraries 
+    logging.info('Loading Python libraries ...')
+
+    import sys
+    import pandas as pd
+
+    logging.info('Done!')
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,6 +25,14 @@ def merge_data(**kwargs):
     preprocessed_current_data_file = kwargs['preprocessed_current_data_file']
     data_folder = kwargs['data_folder']
     merged_data_file = kwargs['merged_data_file']
+
+    if update_check:
+        logging.info('Merging current and reference data.')
+    else:
+        logging.info('No current data downloaded. Skipping merging with empty outputs.')
+        # Create empty outs file
+        Path(os.path.join(curr_dir, os.pardir, data_folder, merged_data_file)).touch()
+        exit()
 
     try:
         # Load CURRENT and REFERENCE datasets

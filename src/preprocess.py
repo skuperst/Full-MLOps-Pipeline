@@ -1,45 +1,52 @@
-import logging
+import logging, os, yaml
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
-logging.info('Loading Python libraries ...')
 
-import yaml
-import os
-import sys
-import pandas as pd
+from utils.update_check_utils import update_check
 
-import mlflow
+update_check = update_check()
+if update_check:
 
-import numpy as np
-import matplotlib.pyplot as plt
+    # If there is an update load the heavy Python libraries 
+    logging.info('Loading Python libraries ...')
 
-from datetime import datetime
+    import sys
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from datetime import datetime
+    import json
 
-import json
+    import mlflow
+    from utils.mlflow_utils import configure_mlflow
 
-from utils.mlflow_utils import configure_mlflow
-
-logging.info('Done!')
+    logging.info('Done!')
+    
+else:
+    from pathlib import Path
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 
 def preprocess(**kwargs):
 
-    configure_mlflow()
-
     data_folder = kwargs['data_folder']
     input_file = kwargs['input_file']    
     output_file = kwargs['output_file']
     keep_duplicates = kwargs['keep_duplicates']
     rename_map = kwargs['rename_map']
-    prediction_column= kwargs['prediction_column']
-    flask_dict_file = kwargs['flask_dict_file']
-    onehot_name_dictionary_file = kwargs['onehot_name_dictionary_file']
+    # prediction_column= kwargs['prediction_column']
+    # flask_dict_file = kwargs['flask_dict_file']
+    # onehot_name_dictionary_file = kwargs['onehot_name_dictionary_file']
 
+    if update_check:
+        logging.info('Prepocessing current data.')
+    else:
+        logging.info('No current data downloaded. Skipping preprocessing with empty outputs.')
+        # Create empty outs file
+        Path(os.path.join(curr_dir, os.pardir, data_folder, output_file)).touch()
+        exit()
 
-    # Initiate logging
-    logging.basicConfig(level=logging.INFO)
+    configure_mlflow()
 
     # Download the input file into a dataframe
     Data = pd.read_csv(os.path.join(curr_dir, os.pardir, data_folder, input_file))
@@ -68,33 +75,33 @@ def preprocess(**kwargs):
         sys.exit(1)
 
     # Already created at the very first step for reference data
-    # Create and save a dictionary for the Flask API html template 
-    try:
-        # Initiate the dictionary
-        flask_dict = dict()
-        for col, t in dict(Data.dtypes).items():
-            if col != prediction_column: # For all columns except the prediction column
-                # For each column there is a (sub)dictionary
-                flask_dict[col] = dict()
-                # The label is the column name with sapce and capitalised
-                flask_dict[col]['label'] = col.capitalize().replace('_', ' ')
-                # If the column is a string type or there are less than 11 options in the column, a dropdwon menu will be used
-                if Data[col].dtype == 'object' or Data[col].nunique()<=10:
-                    flask_dict[col]['type_of_input'] = "dropdown"
-                    flask_dict[col]['options'] = sorted(Data[col].unique().tolist())
-                # ... otherwise a value will be inserted
-                else:
-                    flask_dict[col]['type_of_input'] = "manual"
-                    # The range is a dictionary with the minimum and the maximum  
-                    flask_dict[col]['range'] = dict({'min': int(Data[col].min()), 'max': int(Data[col].max())})
-                    # The 'value' precision
-                    flask_dict[col]['precision'] = 10**(-int(Data[col].map(lambda x: len(str(x).split('.')[1])).max())) if t=='float' else 1
-        with open(os.path.join(curr_dir, os.pardir, data_folder, flask_dict_file), 'w') as json_file:
-            json.dump(flask_dict, json_file)
-        logging.info("The column data used by Flask API was successfully created and saved.")
-    except:
-        logging.error("The column data used by Flask API was not saved!")
-        sys.exit(1)
+    # # Create and save a dictionary for the Flask API html template 
+    # try:
+    #     # Initiate the dictionary
+    #     flask_dict = dict()
+    #     for col, t in dict(Data.dtypes).items():
+    #         if col != prediction_column: # For all columns except the prediction column
+    #             # For each column there is a (sub)dictionary
+    #             flask_dict[col] = dict()
+    #             # The label is the column name with sapce and capitalised
+    #             flask_dict[col]['label'] = col.capitalize().replace('_', ' ')
+    #             # If the column is a string type or there are less than 11 options in the column, a dropdwon menu will be used
+    #             if Data[col].dtype == 'object' or Data[col].nunique()<=10:
+    #                 flask_dict[col]['type_of_input'] = "dropdown"
+    #                 flask_dict[col]['options'] = sorted(Data[col].unique().tolist())
+    #             # ... otherwise a value will be inserted
+    #             else:
+    #                 flask_dict[col]['type_of_input'] = "manual"
+    #                 # The range is a dictionary with the minimum and the maximum  
+    #                 flask_dict[col]['range'] = dict({'min': int(Data[col].min()), 'max': int(Data[col].max())})
+    #                 # The 'value' precision
+    #                 flask_dict[col]['precision'] = 10**(-int(Data[col].map(lambda x: len(str(x).split('.')[1])).max())) if t=='float' else 1
+    #     with open(os.path.join(curr_dir, os.pardir, data_folder, flask_dict_file), 'w') as json_file:
+    #         json.dump(flask_dict, json_file)
+    #     logging.info("The column data used by Flask API was successfully created and saved.")
+    # except:
+    #     logging.error("The column data used by Flask API was not saved!")
+    #     sys.exit(1)
 
     # Start an MLflow run
     with mlflow.start_run():
@@ -163,15 +170,15 @@ def preprocess(**kwargs):
     else:
         logging.info('No categorical columns detected. One-hot encoding is not applied.')
 
-    # Already created at the very first step for reference data
-    # Save the names dictionary which relates the columnns before and after pd.get_dummies
-    try:
-        with open(os.path.join(curr_dir, os.pardir, data_folder, onehot_name_dictionary_file), 'w') as json_file:
-            json.dump(onehot_name_dictionary, json_file)
-        logging.info("The column names dictionary was successfully saved.")
-    except:
-        logging.error("The column names dictionary was not saved!")
-        sys.exit(1)
+    # # Already created at the very first step for reference data
+    # # Save the names dictionary which relates the columnns before and after pd.get_dummies
+    # try:
+    #     with open(os.path.join(curr_dir, os.pardir, data_folder, onehot_name_dictionary_file), 'w') as json_file:
+    #         json.dump(onehot_name_dictionary, json_file)
+    #     logging.info("The column names dictionary was successfully saved.")
+    # except:
+    #     logging.error("The column names dictionary was not saved!")
+    #     sys.exit(1)
 
     # Save the preprocessed reference file
     try:

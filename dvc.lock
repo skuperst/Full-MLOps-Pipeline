@@ -33,10 +33,15 @@ stages:
   preprocess:
     cmd: python src/preprocess.py
     deps:
+    - path: data/raw_current_data.csv
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+      isexec: true
     - path: src/preprocess.py
       hash: md5
-      md5: c05e4b6abd03b56b92307ebaaf69cadf
-      size: 7895
+      md5: 095b2264466d1be9acc620ee0a499654
+      size: 8414
       isexec: true
     params:
       params.yaml:
@@ -56,33 +61,23 @@ stages:
           flask_dict_file: flask_dictionary.json
           onehot_name_dictionary_file: onehot_name_dictionary.json
     outs:
-    - path: data/flask_dictionary.json
-      hash: md5
-      md5: e0e6f4a9b43ceacdabaed84537e56137
-      size: 1138
-      isexec: true
-    - path: data/onehot_name_dictionary.json
-      hash: md5
-      md5: b82da1ddc0383342f6c9d8812a2b16ab
-      size: 784
-      isexec: true
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 29f808783f2903b9e175430c6779c023
-      size: 146846
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
   train:
     cmd: python src/train.py
     deps:
     - path: data/merged_data.csv
       hash: md5
-      md5: d15d5ff5c16c5ebf2bfc6912a7dd2cd2
-      size: 1477038
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: src/train.py
       hash: md5
-      md5: 4193a5507ec7925009819aaa2ac0cc59
-      size: 6429
+      md5: 723949ca62a5f2a1b34124104976f01e
+      size: 6945
       isexec: true
     params:
       params.yaml:
@@ -116,36 +111,36 @@ stages:
     outs:
     - path: data/test_X.csv
       hash: md5
-      md5: 8f854cae9d320e4ca50cfeb43cac8dfa
-      size: 289827
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 450bf0c907b7fba0b3360323a958a1ee
-      size: 5932
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: models/new_model.pkl
       hash: md5
-      md5: 16714b89bb5ec2c93456499ce90cf154
-      size: 12820
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/test_X.csv
       hash: md5
-      md5: 8f854cae9d320e4ca50cfeb43cac8dfa
-      size: 289827
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: data/test_y.csv
       hash: md5
-      md5: 450bf0c907b7fba0b3360323a958a1ee
-      size: 5932
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: src/evaluate.py
       hash: md5
-      md5: 3a6d461b952b5af5f9ccb94215a5a3b0
-      size: 5485
+      md5: 840ebf0ea2320df231b520d571d6fd9e
+      size: 5721
       isexec: true
     params:
       params.yaml:
@@ -164,22 +159,22 @@ stages:
     deps:
     - path: src/set_experiment_name.py
       hash: md5
-      md5: 48bd7687e3456f18c2afecded6684e12
-      size: 1067
+      md5: 1a0fddc3813de4acd0376b02e4b4b45f
+      size: 1488
       isexec: true
     outs:
     - path: mlflow_experiment_name.yaml
       hash: md5
-      md5: b59e761600f8b82732f6169fae3cda19
-      size: 43
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
   evidentlyai:
     cmd: python src/evidentlyai.py
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 29f808783f2903b9e175430c6779c023
-      size: 146846
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
@@ -188,8 +183,8 @@ stages:
       isexec: true
     - path: src/evidentlyai.py
       hash: md5
-      md5: be428f2d832e10b3fe290fce49a74781
-      size: 6673
+      md5: 51487f9016e5ea67fadf12052df20d4f
+      size: 6797
       isexec: true
     params:
       params.yaml:
@@ -204,12 +199,6 @@ stages:
           prediction_column: left_or_not
           evidently_htmls_folder_name: evidently_htmls
           drift_file: drift_file.csv
-    outs:
-    - path: evidently_htmls
-      hash: md5
-      md5: 3cd63b96b438fd6d8845b7c811a1dd2a.dir
-      size: 9946896
-      nfiles: 4
   hugging_face_push:
     cmd: python src/hugging_face_push.py
     deps:
@@ -259,8 +248,8 @@ stages:
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 29f808783f2903b9e175430c6779c023
-      size: 146846
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: data/preprocessed_reference_data.csv
       hash: md5
@@ -269,8 +258,8 @@ stages:
       isexec: true
     - path: src/merge_data.py
       hash: md5
-      md5: 5c8004271104ac8f5402ce5ee3c67ca3
-      size: 1372
+      md5: a4d5577b8276dc606b8118fb1069df40
+      size: 1884
       isexec: true
     params:
       params.yaml:
@@ -282,26 +271,26 @@ stages:
     outs:
     - path: data/merged_data.csv
       hash: md5
-      md5: d15d5ff5c16c5ebf2bfc6912a7dd2cd2
-      size: 1477038
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
   upload_predictions:
     cmd: python src/upload_predictions.py
     deps:
     - path: data/preprocessed_current_data.csv
       hash: md5
-      md5: 29f808783f2903b9e175430c6779c023
-      size: 146846
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: models/new_model.pkl
       hash: md5
-      md5: 16714b89bb5ec2c93456499ce90cf154
-      size: 12820
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
     - path: src/upload_predictions.py
       hash: md5
-      md5: ac253369e27e9c6e8442557d0a03f610
-      size: 2673
+      md5: a1c9e5a33c3f9ff3232b33da6d1b94b9
+      size: 3243
       isexec: true
     params:
       params.yaml:
@@ -314,12 +303,17 @@ stages:
     outs:
     - path: data/preprocessed_current_data_with_predictions.csv
       hash: md5
-      md5: 22fa1252a776634876470928b727700f
-      size: 156024
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
       isexec: true
   cleanup:
     cmd: python src/cleanup.py
     deps:
+    - path: dummy_file.txt
+      hash: md5
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+      isexec: true
     - path: src/cleanup.py
       hash: md5
       md5: ba699456b7e111aab719c11e908a5457
@@ -336,3 +330,5 @@ stages:
           preprocessed_current_data_with_predictions_file: preprocessed_current_data_with_predictions.csv
           test_X_file: test_X.csv
           test_y_file: test_y.csv
+  check_file:
+    cmd: test -f X.csv || (touch .skip_pipeline && exit 0)

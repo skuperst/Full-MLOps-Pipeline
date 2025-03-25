@@ -2,15 +2,23 @@ import logging
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
 
+from utils.update_check_utils import update_check
+
+if update_check():
+    logging.info('Initiating model evaluation.')
+else:
+    logging.info('No current data downloaded. Skipping evaluation.')     
+    exit()
+
+# If there is an update load the heavy Python libraries 
 logging.info('Loading Python libraries ...')
 
-import yaml
-import os
+import os, yaml
 import pickle
 import pandas as pd
 import json
 
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_score, recall_score, f1_score
 
 import mlflow
 
@@ -48,7 +56,8 @@ def evaluate(**kwargs):
 
     evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
     drift_file = kwargs['drift_file']
-    
+
+
     drift_df = pd.read_csv(os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, drift_file))
     if drift_df.query('drift_detected').shape[0] > 0:
         logging.info("Data drift detected. The retrained model will be re-evaluated.")

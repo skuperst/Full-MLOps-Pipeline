@@ -2,15 +2,21 @@ import logging
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
 
+from utils.update_check_utils import update_check
+
+if update_check():
+    logging.info('Initializing EvidentlyAI analysis.')
+else:
+    logging.info('No current data downloaded. Skipping EvidentlyAI.')
+    exit()
+
+# If there is an update load the heavy Python libraries 
 logging.info('Loading Python libraries ...')
 
-import os
+import os, yaml
 import sys
-import yaml
 import pickle
 from dotenv import load_dotenv
-
-import json
 
 from evidently.ui.workspace.cloud import CloudWorkspace
 from evidently.pipeline.column_mapping import ColumnMapping
@@ -20,8 +26,6 @@ from evidently.metric_preset import DataQualityPreset, DataDriftPreset, Classifi
 import pandas as pd
 
 import mlflow
-
-#from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, precision_score, recall_score, f1_score
 
 from utils.mlflow_utils import configure_mlflow
 

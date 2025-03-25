@@ -1,36 +1,36 @@
-import logging
+import logging, os, yaml
 # Initiate logging
 logging.basicConfig(level=logging.INFO)
-logging.info('Loading Python libraries ...')
 
-import yaml
-import os
-import sys
-import pickle
+from utils.update_check_utils import update_check
 
-import pandas as pd
-import numpy as np
+update_check = update_check()
+if update_check:
 
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import GridSearchCV, train_test_split
-from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import MinMaxScaler
+    # If there is an update load the heavy Python libraries 
+    logging.info('Loading Python libraries ...')
 
-import math
+    import sys
+    import pickle
 
-import mlflow
-from mlflow.models import infer_signature
+    import pandas as pd
+    import numpy as np
 
-from datetime import datetime
+    from sklearn.ensemble import AdaBoostClassifier
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.model_selection import GridSearchCV, train_test_split
 
-import matplotlib.pyplot as plt
-from  matplotlib.colors import LinearSegmentedColormap 
+    import math
+    from datetime import datetime
 
+    import mlflow
+    from mlflow.models import infer_signature
+    from utils.mlflow_utils import configure_mlflow
 
-from utils.mlflow_utils import configure_mlflow
+    logging.info('Done!')
 
-logging.info('Done!')
+else:
+    from pathlib import Path
 
 # Current directory
 curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +52,17 @@ def train(**kwargs):
 
     evidently_htmls_folder_name = kwargs['evidently_htmls_folder_name']
     drift_file = kwargs['drift_file']
+
+    if update_check:
+        logging.info('Initiating model training.')
+    else:
+        logging.info('No current data downloaded. Skipping training with tempty outputs.')
+        # Create empty outs file
+        Path(os.path.join(curr_dir, os.pardir, data_folder, test_X_file)).touch()
+        Path(os.path.join(curr_dir, os.pardir, data_folder, test_y_file)).touch()
+        Path(os.path.join(curr_dir, os.pardir, model_file_path)).touch()        
+        exit()
+
     
     drift_df = pd.read_csv(os.path.join(curr_dir, os.pardir, evidently_htmls_folder_name, drift_file))
     if drift_df.query('drift_detected').shape[0] > 0:
