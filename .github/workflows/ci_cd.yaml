@@ -50,11 +50,11 @@ jobs:
       - name: Pull all data from DVC remote (DagsHub)
         run: |
           dvc pull data/flask_dictionary.json 
-          dvc pull ddata/onehot_name_dictionary.json 
+          dvc pull data/onehot_name_dictionary.json 
           dvc pull data/raw_reference_data.csv
           dvc pull data/preprocessed_reference_data.csv 
           dvc pull data/test_data.csv 
-          
+
       - name: Run Python script to test pipeline
         run: |
           dvc repro
