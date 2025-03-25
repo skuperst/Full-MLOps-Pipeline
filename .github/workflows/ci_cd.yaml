@@ -6,7 +6,9 @@ on:
       - main
 
 jobs:
+
   test-pipeline:
+
     runs-on: ubuntu-latest
     
     steps:
@@ -22,15 +24,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip          
           pip install -r requirements.txt    
-
-      # - name: Decode Google Credentials
-      #   run: |
-      #     echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /home/runner/google-credentials.json
-
-      # - name: Set GOOGLE_APPLICATION_CREDENTIALS and BUCKET_NAME environment variables
-      #   run: |
-      #     echo "GOOGLE_APPLICATION_CREDENTIALS=/home/runner/google-credentials.json" >> $GITHUB_ENV
-      #     echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
 
       - name: Set other environment variables
         run: |
@@ -59,3 +52,88 @@ jobs:
         run: |
           pytest src/test_pipeline.py --maxfail=1
 
+
+  retrain:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12.2'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip          
+          pip install -r requirements.txt    
+
+      - name: Decode Google Credentials
+        run: |
+          echo "${{ secrets.GOOGLE_APP_CREDENTIALS_BASE64 }}" | base64 --decode > /home/runner/google-credentials.json
+
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS and BUCKET_NAME environment variables
+        run: |
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/home/runner/google-credentials.json" >> $GITHUB_ENV
+          echo "BUCKET_NAME=${{ secrets.BUCKET_NAME }}" >> $GITHUB_ENV
+
+      - name: Set other environment variables
+        run: |
+          echo "DAGSHUB_PASSWORD=${{ secrets.DAGSHUB_PASSWORD }}" >> .env
+          echo "DAGSHUB_USER_NAME=${{ secrets.DAGSHUB_USER_NAME }}" >> .env
+          echo "EVIDENTLY_PROJECT_ID=${{ secrets.EVIDENTLY_PROJECT_ID }}" >> .env
+          echo "EVIDENTLY_TOKEN=${{ secrets.EVIDENTLY_TOKEN }}" >> .env
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env        
+
+      - name: Set up DVC remote with DagsHub credentials
+        run: |
+          dvc remote add -d myremote https://dagshub.com/skuperst/Full-MLOps-Pipeline.dvc
+          dvc remote modify myremote --local auth basic
+          dvc remote modify myremote --local user ${{ secrets.DAGSHUB_USER_NAME }}
+          dvc remote modify myremote --local password ${{ secrets.DAGSHUB_PASSWORD }}
+
+      - name: Pull all data from DVC remote (DagsHub)
+        run: |
+          dvc pull data/flask_dictionary.json
+          dvc pull data/onehot_name_dictionary.json
+          dvc pull data/raw_reference_data.csv
+          dvc pull data/preprocessed_reference_data.csv 
+          dvc pull data/test_data.csv 
+
+      - name: Downlaod new (current) data, if any
+        run: |
+          python3 src/download_current_data.py
+          
+      - name: Run the entire pipeline
+        run: |          
+          dvc repro --force
+
+
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12.2'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip          
+          pip install python-dotenv huggingface_hub pyyaml
+
+      - name: Set Hugging Face environment variable(s)
+        run: |
+          echo "HF_GITHUB_ACTIONS_TOKEN=${{ secrets.HF_GITHUB_ACTIONS_TOKEN }}" >> .env
+
+      - name: Upload the retrained model to HF
+        run: |
+          python3 src/hugging_face_push.py  
