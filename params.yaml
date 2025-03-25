@@ -113,7 +113,8 @@ flask_api:
   old_model_file_path: *old_model_file_path
   flask_dict_file: *flask_dict_file
   onehot_name_dictionary_file: *onehot_name_dictionary_file
-  test_X_file: *test_X_file
+  reference_data_file: *reference_data_file
+  prediction_column: *prediction_column
 
 hugging_face_push_script_file: src/hugging_face_push.py
 
